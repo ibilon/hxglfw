@@ -4,28 +4,6 @@ import cpp.Float32;
 import glfw.errors.MonitorDisconnectedException;
 import haxe.ds.ReadOnlyArray;
 
-typedef Area = {
-	x:Int,
-	y:Int,
-	width:Int,
-	height:Int,
-};
-
-typedef Position = {
-	x:Int,
-	y:Int,
-};
-
-typedef Scale = {
-	x:Float,
-	y:Float,
-};
-
-typedef Size = {
-	width:Int,
-	height:Int,
-};
-
 @:allow(glfw)
 @:headerInclude('./glfw.h')
 @:headerClassCode('
@@ -36,21 +14,26 @@ class Monitor {
 
 	var parent:GLFW;
 
-	public var contentScale(get, never):Scale;
+	public var contentScale(get, never):{x:Float, y:Float};
 
 	public var currentVideoMode(get, never):VideoMode;
 
 	public var name(get, never):String;
 
-	public var physicalSize(get, never):Size;
+	public var physicalSize(get, never):{width:Int, height:Int};
 
-	public var position(get, never):Position;
+	public var position(get, never):{x:Int, y:Int};
 
 	public var videoModes(get, never):ReadOnlyArray<VideoMode>;
 
-	public var workarea(get, never):Area;
+	public var workarea(get, never):{
+		x:Int,
+		y:Int,
+		width:Int,
+		height:Int
+	};
 
-	function get_contentScale():Scale {
+	function get_contentScale():{x:Float, y:Float} {
 		validate();
 
 		var x:Float32 = 0.0;
@@ -81,7 +64,7 @@ class Monitor {
 		return cpp.NativeString.fromPointer(untyped __cpp__('glfwGetMonitorName(native)'));
 	}
 
-	function get_physicalSize():Size {
+	function get_physicalSize():{width:Int, height:Int} {
 		validate();
 
 		var width = 0;
@@ -95,7 +78,7 @@ class Monitor {
 		};
 	}
 
-	function get_position():Position {
+	function get_position():{x:Int, y:Int} {
 		validate();
 
 		var x = 0;
@@ -127,7 +110,12 @@ class Monitor {
 		return modes;
 	}
 
-	function get_workarea():Area {
+	function get_workarea():{
+		x:Int,
+		y:Int,
+		width:Int,
+		height:Int
+	} {
 		validate();
 
 		var x = 0;
