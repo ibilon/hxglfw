@@ -1,0 +1,10 @@
+{
+	"name": "glfw",
+	"url" : "https://github.com/ibilon/hxglfw/",
+	"license": "MIT",
+	"tags": ["window", "input", "desktop"],
+	"description": "",
+	"version": "0.0.1",
+	"releasenote": "Initial release",
+	"contributors": ["_ibilon"]
+}

@@ -1,0 +1,31 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build sample",
+			"type": "process",
+			"command": "haxe",
+			"args": [
+				"sample.hxml"
+			],
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			]
+		},
+		{
+			"label": "Run sample",
+			"type": "process",
+			"command": "./sample/build/Main-debug",
+			"args": [],
+			"problemMatcher": [],
+			"dependsOn": "Build sample",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		}
+	]
+}
