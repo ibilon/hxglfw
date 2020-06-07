@@ -25,6 +25,8 @@ class Main {
 			height: 600,
 		});
 
+		window.onPositionChange.push((x, y) -> trace('Moved to [$x, $y]'));
+
 		while (!window.shouldClose) {
 			glfw.pollEvents();
 			// TODO close on esc

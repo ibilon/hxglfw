@@ -13,9 +13,18 @@ import haxe.ds.ReadOnlyArray;
 ')
 @:cppNamespaceCode('
 	static GLFW_obj *singleton = nullptr;
+
+	static void error_callback(int code, const char *message) {
+		glfw::GLFW_obj::errorCallback(code, message);
+	}
 ')
 @:headerInclude('./glfw.h')
 class GLFW {
+	static function errorCallback(code:Int, message:String):Void {
+		// TODO switch on code to dispatch better errors
+		throw new GenericException(code, message);
+	}
+
 	public static var version(get, never):{major:Int, minor:Int, patch:Int};
 
 	static function get_version():{major:Int, minor:Int, patch:Int} {
@@ -59,8 +68,7 @@ class GLFW {
 			throw new AlreadyInitException();
 		}
 
-		// TODO: Check if can be use internally to throw haxe error.
-		// glfwSetErrorCallback(GLFWerrorfun callback);
+		untyped __cpp__('glfwSetErrorCallback(error_callback)');
 
 		if (untyped __cpp__('glfwInit()') == 0) {
 			throw new InitException();
