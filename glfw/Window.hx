@@ -4,13 +4,6 @@ import cpp.Float32;
 import cpp.NativeString;
 import glfw.errors.*;
 
-/**TODO
-	GLFWAPI int glfwGetWindowAttrib(GLFWwindow* window, int attrib);
-	GLFWAPI void glfwSetWindowAttrib(GLFWwindow* window, int attrib, int value);
-
-	typedef void (* GLFWdropfun)(GLFWwindow*,int,const char*[]);
-	GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* window, GLFWdropfun callback);
-**/
 @:allow(glfw)
 @:cppNamespaceCode('
 	static void close_callback(GLFWwindow *window) {
@@ -32,6 +25,25 @@ import glfw.errors.*;
 			if (elem->native == window) {
 				for (unsigned int j = 0; j < elem->onContentScaleChange->length; ++j) {
 					elem->onContentScaleChange->__get(j)(x, y);
+				}
+			}
+		}
+	}
+
+	static void drop_callback(GLFWwindow *window, int count, const char **paths) {
+		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
+			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+
+			if (elem->native == window) {
+				for (unsigned int j = 0; j < elem->onPathDrop->length; ++j) {
+					Array<String> haxe_paths = Array_obj<String>::__new();
+
+					for (unsigned int k = 0; k < count; ++k) {
+						cpp::Pointer<char> ptr = paths[i];
+						haxe_paths->push(String(ptr->ptr));
+					}
+
+					elem->onPathDrop->__get(j)(haxe_paths);
 				}
 			}
 		}
@@ -116,11 +128,19 @@ import glfw.errors.*;
 class Window {
 	static var windows:Array<Window> = [];
 
+	public var autoIconify(get, set):Bool;
+
 	public var clipboardString(get, set):String;
 
 	public var contentScale(get, never):{x:Float, y:Float};
 
+	public var decorated(get, set):Bool;
+
 	var destroyed:Bool;
+
+	public var floating(get, set):Bool;
+
+	public var focusOnShow(get, set):Bool;
 
 	public var frameSize(get, never):{
 		left:Int,
@@ -139,6 +159,8 @@ class Window {
 
 	public var onMaximizeChange:Array<(maximized:Bool) -> Void>;
 
+	public var onPathDrop:Array<(paths:Array<String>) -> Void>;
+
 	public var onPositionChange:Array<(x:Int, y:Int) -> Void>;
 
 	public var onRefresh:Array<() -> Void>;
@@ -149,14 +171,33 @@ class Window {
 
 	var parent:GLFW;
 
+	public var resizable(get, set):Bool;
+
 	public var shouldClose(get, set):Bool;
 
 	public var title(default, set):String;
+
+	function get_autoIconify():Bool {
+		return untyped __cpp__('glfwGetWindowAttrib(native, GLFW_AUTO_ICONIFY)');
+	}
+
+	function set_autoIconify(value:Bool):Bool {
+		untyped __cpp__('glfwSetWindowAttrib(native, GLFW_AUTO_ICONIFY, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
 
 	function get_clipboardString():String {
 		validate();
 
 		return NativeString.fromPointer(untyped __cpp__('glfwGetClipboardString(native)'));
+	}
+
+	function set_clipboardString(value:String):String {
+		validate();
+
+		untyped __cpp__('glfwSetClipboardString(native, value)');
+
+		return value;
 	}
 
 	function get_contentScale():{x:Float, y:Float} {
@@ -171,6 +212,33 @@ class Window {
 			x: x,
 			y: y,
 		};
+	}
+
+	function get_decorated():Bool {
+		return untyped __cpp__('glfwGetWindowAttrib(native, GLFW_DECORATED)');
+	}
+
+	function set_decorated(value:Bool):Bool {
+		untyped __cpp__('glfwSetWindowAttrib(native, GLFW_DECORATED, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
+	function get_floating():Bool {
+		return untyped __cpp__('glfwGetWindowAttrib(native, GLFW_FLOATING)');
+	}
+
+	function set_floating(value:Bool):Bool {
+		untyped __cpp__('glfwSetWindowAttrib(native, GLFW_FLOATING, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
+	function get_focusOnShow():Bool {
+		return untyped __cpp__('glfwGetWindowAttrib(native, GLFW_FOCUS_ON_SHOW)');
+	}
+
+	function set_focusOnShow(value:Bool):Bool {
+		untyped __cpp__('glfwSetWindowAttrib(native, GLFW_FOCUS_ON_SHOW, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
 	}
 
 	function get_frameSize():{
@@ -210,18 +278,19 @@ class Window {
 		return value;
 	}
 
+	function get_resizable():Bool {
+		return untyped __cpp__('glfwGetWindowAttrib(native, GLFW_RESIZABLE)');
+	}
+
+	function set_resizable(value:Bool):Bool {
+		untyped __cpp__('glfwSetWindowAttrib(native, GLFW_RESIZABLE, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
 	function get_shouldClose():Bool {
 		validate();
 
 		return untyped __cpp__('glfwWindowShouldClose(native)');
-	}
-
-	function set_clipboardString(value:String):String {
-		validate();
-
-		untyped __cpp__('glfwSetClipboardString(native, value)');
-
-		return value;
 	}
 
 	function set_shouldClose(value:Bool):Bool {
@@ -247,22 +316,45 @@ class Window {
 		this.onFocusChange = [];
 		this.onIconifyChange = [];
 		this.onMaximizeChange = [];
+		this.onPathDrop = [];
 		this.onPositionChange = [];
 		this.onRefresh = [];
 		this.onSizeChange = [];
 		this.parent = parent;
 		@:bypassAccessor this.title = options.title;
 
-		// TODO
-		// glfwWindowHint(int hint, int value);
-		// glfwWindowHintString(int hint, const char * value);
-		// monitor and share parameter of glfwCreateWindow
-
 		windows.push(this);
 
 		untyped __cpp__('
+			glfwDefaultWindowHints();
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+			if (!hx::IsNull(options->autoIconify)) {
+				glfwWindowHint(GLFW_AUTO_ICONIFY, options->autoIconify ? GLFW_TRUE : GLFW_FALSE);
+			}
+
+			if (!hx::IsNull(options->decorated)) {
+				glfwWindowHint(GLFW_DECORATED, options->decorated ? GLFW_TRUE : GLFW_FALSE);
+			}
+
+			if (!hx::IsNull(options->floating)) {
+				glfwWindowHint(GLFW_FLOATING, options->floating ? GLFW_TRUE : GLFW_FALSE);
+			}
+
+			if (!hx::IsNull(options->focusOnShow)) {
+				glfwWindowHint(GLFW_FOCUS_ON_SHOW, options->focusOnShow ? GLFW_TRUE : GLFW_FALSE);
+			}
+
+			if (!hx::IsNull(options->resizable)) {
+				glfwWindowHint(GLFW_RESIZABLE, options->resizable ? GLFW_TRUE : GLFW_FALSE);
+			}
+
+			GLFWmonitor* monitor = hx::IsNull(options->monitor) ? nullptr : options->monitor->native;
+			GLFWwindow* share = hx::IsNull(options->share) ? nullptr : options->share->native;
+
 			native = glfwCreateWindow(options->width, options->height, options->title, nullptr, nullptr);
 
+			glfwSetDropCallback(native, drop_callback);
 			glfwSetWindowCloseCallback(native, close_callback);
 			glfwSetWindowContentScaleCallback(native, contentscale_callback);
 			glfwSetWindowFocusCallback(native, focus_callback);
@@ -273,6 +365,9 @@ class Window {
 			glfwSetWindowSizeCallback(native, size_callback);
 		');
 
+		if (options.openCentered != null && options.openCentered) {
+			// TODO Find which monitor the window was opened on, then center the window
+		}
 	}
 
 	public function destroy():Void {

@@ -11,15 +11,17 @@ import haxe.ds.ReadOnlyArray;
     GLFWmonitor *native;
 ')
 class Monitor {
-	var connected:Bool;
-
-	var parent:GLFW;
+	public var connected(default, null):Bool;
 
 	public var contentScale(get, never):{x:Float, y:Float};
 
 	public var currentVideoMode(get, never):VideoMode;
 
 	public var name(get, never):String;
+
+	public var onDisconnect:Array<() -> Void>;
+
+	var parent:GLFW;
 
 	public var physicalSize(get, never):{width:Int, height:Int};
 
@@ -137,6 +139,7 @@ class Monitor {
 	function new(parent:GLFW) {
 		this.parent = parent;
 		this.connected = true;
+		this.onDisconnect = [];
 	}
 
 	inline function validate() {
