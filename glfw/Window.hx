@@ -1,29 +1,16 @@
 package glfw;
 
 import cpp.Float32;
-import glfw.errors.UseAfterDestroyException;
+import cpp.NativeString;
+import glfw.errors.*;
 
-/* TODO
-	public var aspectRatio(default, set):{numerator:Int, denominator:Int}; // TODO default value + that won't work if seting only one
-	GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
+/**TODO
+	GLFWAPI int glfwGetWindowAttrib(GLFWwindow* window, int attrib);
+	GLFWAPI void glfwSetWindowAttrib(GLFWwindow* window, int attrib, int value);
 
-	public var icon(default, set):Image; // TODO why multiple?
-	GLFWAPI void glfwSetWindowIcon(GLFWwindow* window, int count, const GLFWimage* images);
-
-	// TODO set same as aspectratio
-	public var position(get, set):{x:Int, y:Int};
-	GLFWAPI void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos);
-	GLFWAPI void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos);
-
-	// TODO set same as aspect ratio
-	public var size(get, set):{width:Int, height:Int};
-	GLFWAPI void glfwGetWindowSize(GLFWwindow* window, int* width, int* height);
-	GLFWAPI void glfwSetWindowSize(GLFWwindow* window, int width, int height);
-
-	public var sizeLimits(default, set):{minWidth:Int, minHeight:Int, maxWidth:Int, maxHeight:Int}; // TODO same as aspectRatio
-	GLFWAPI void glfwSetWindowSizeLimits(GLFWwindow* window, int minwidth, int minheight, int maxwidth, int maxheight);
-
- */
+	typedef void (* GLFWdropfun)(GLFWwindow*,int,const char*[]);
+	GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* window, GLFWdropfun callback);
+**/
 @:allow(glfw)
 @:cppNamespaceCode('
 	static void close_callback(GLFWwindow *window) {
@@ -129,6 +116,8 @@ import glfw.errors.UseAfterDestroyException;
 class Window {
 	static var windows:Array<Window> = [];
 
+	public var clipboardString(get, set):String;
+
 	public var contentScale(get, never):{x:Float, y:Float};
 
 	var destroyed:Bool;
@@ -163,6 +152,12 @@ class Window {
 	public var shouldClose(get, set):Bool;
 
 	public var title(default, set):String;
+
+	function get_clipboardString():String {
+		validate();
+
+		return NativeString.fromPointer(untyped __cpp__('glfwGetClipboardString(native)'));
+	}
 
 	function get_contentScale():{x:Float, y:Float} {
 		validate();
@@ -221,6 +216,14 @@ class Window {
 		return untyped __cpp__('glfwWindowShouldClose(native)');
 	}
 
+	function set_clipboardString(value:String):String {
+		validate();
+
+		untyped __cpp__('glfwSetClipboardString(native, value)');
+
+		return value;
+	}
+
 	function set_shouldClose(value:Bool):Bool {
 		validate();
 
@@ -250,9 +253,10 @@ class Window {
 		this.parent = parent;
 		@:bypassAccessor this.title = options.title;
 
-		// glfwWindowHint(int hint, int value); // used internally by createWindow
-		// glfwWindowHintString(int hint, const char * value); // used internally by createWindow
-		// glfwCreateWindow(int width, int height, const char * title, GLFWmonitor * monitor, GLFWwindow * share);
+		// TODO
+		// glfwWindowHint(int hint, int value);
+		// glfwWindowHintString(int hint, const char * value);
+		// monitor and share parameter of glfwCreateWindow
 
 		windows.push(this);
 
@@ -286,6 +290,48 @@ class Window {
 		untyped __cpp__('glfwFocusWindow(native)');
 	}
 
+	public function getFullscreenMonitor():Monitor {
+		validate();
+
+		untyped __cpp__('GLFWmonitor *native_monitor = glfwGetWindowMonitor(native)');
+
+		for (m in parent.monitors) {
+			if (untyped __cpp__('m->native == native_monitor')) {
+				return m;
+			}
+		}
+
+		throw new NotFullscreenException();
+	}
+
+	public function getPosition():{x:Int, y:Int} {
+		validate();
+
+		var x = 0;
+		var y = 0;
+
+		untyped __cpp__('glfwGetWindowPos(native, &x, &y)');
+
+		return {
+			x: x,
+			y: y,
+		};
+	}
+
+	public function getSize():{width:Int, height:Int} {
+		validate();
+
+		var width = 0;
+		var height = 0;
+
+		untyped __cpp__('glfwGetWindowSize(native, &width, &height)');
+
+		return {
+			width: width,
+			height: height,
+		};
+	}
+
 	public function hide():Void {
 		validate();
 
@@ -314,6 +360,71 @@ class Window {
 		validate();
 
 		untyped __cpp__('glfwRestoreWindow(native)');
+	}
+
+	public function setAspectRatio(numerator:Int, denominator:Int):Void {
+		validate();
+
+		untyped __cpp__('glfwSetWindowAspectRatio(native, numerator, denominator)');
+	}
+
+	public function setFullscreenMonitor(monitor:Monitor, x:Int, y:Int, width:Int, height:Int, refreshRate:Int):Void {
+		validate();
+
+		untyped __cpp__('glfwSetWindowMonitor(native, monitor->native, x, y, width, height, refreshRate)');
+	}
+
+	public function setIcon(icons:Array<Image>):Void {
+		validate();
+
+		untyped __cpp__('
+			GLFWimage *images = (GLFWimage*)malloc(sizeof(*images) * icons->length);
+			unsigned char **pixels = (unsigned char**)malloc(sizeof(*pixels) * icons->length);
+
+			for (unsigned int i = 0; i < icons->length; ++i) {
+				auto elem = icons->__get(i).StaticCast<glfw::Image>();
+
+				pixels[i] = (unsigned char*)malloc(sizeof(**pixels) * elem->pixels->length);
+
+				for (unsigned int j = 0; j < elem->pixels->length; ++j) {
+					pixels[i][j] = elem->pixels->__get(j);
+				}
+
+				images[i] = (GLFWimage){
+					width: elem->width,
+					height: elem->height,
+					pixels: pixels[i],
+				};
+			}
+
+			glfwSetWindowIcon(native, icons->length, images);
+
+			for (unsigned int i = 0; i < icons->length; ++i) {
+				free(pixels[i]);
+			}
+
+			free(pixels);
+			free(images);
+		');
+
+	}
+
+	public function setPosition(x:Int, y:Int):Void {
+		validate();
+
+		untyped __cpp__('glfwSetWindowPos(native, x, y)');
+	}
+
+	public function setSize(width:Int, height:Int):Void {
+		validate();
+
+		untyped __cpp__('glfwSetWindowSize(native, width, height)');
+	}
+
+	public function setSizeLimits(minWidth:Int, minHeight:Int, maxWidth:Int, maxHeight:Int):Void {
+		validate();
+
+		untyped __cpp__('glfwSetWindowSizeLimits(native, minWidth, minHeight, maxWidth, maxHeight)');
 	}
 
 	public function show():Void {

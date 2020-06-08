@@ -1,6 +1,7 @@
 package glfw;
 
 import cpp.Float32;
+import cpp.NativeString;
 import glfw.errors.MonitorDisconnectedException;
 import haxe.ds.ReadOnlyArray;
 
@@ -61,7 +62,7 @@ class Monitor {
 	function get_name():String {
 		validate();
 
-		return cpp.NativeString.fromPointer(untyped __cpp__('glfwGetMonitorName(native)'));
+		return NativeString.fromPointer(untyped __cpp__('glfwGetMonitorName(native)'));
 	}
 
 	function get_physicalSize():{width:Int, height:Int} {
