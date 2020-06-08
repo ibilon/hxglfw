@@ -1,6 +1,8 @@
 package glfw.errors;
 
 @:allow(glfw)
-class UseAfterDestroyException {
-	function new() {}
+class UseAfterDestroyException extends Exception {
+	function new() {
+		super("Object was used after being destroyed");
+	}
 }

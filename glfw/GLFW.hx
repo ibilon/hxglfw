@@ -22,7 +22,7 @@ import haxe.ds.ReadOnlyArray;
 class GLFW {
 	static function errorCallback(code:Int, message:String):Void {
 		// TODO switch on code to dispatch better errors
-		throw new GenericException(code, message);
+		throw new Exception(message);
 	}
 
 	public static var version(get, never):{major:Int, minor:Int, patch:Int};
@@ -65,13 +65,14 @@ class GLFW {
 
 	public function new() {
 		if (untyped __cpp__('singleton != nullptr')) {
-			throw new AlreadyInitException();
+			throw new AlreadyInitializedException();
 		}
 
 		untyped __cpp__('glfwSetErrorCallback(error_callback)');
 
 		if (untyped __cpp__('glfwInit()') == 0) {
-			throw new InitException();
+			// TODO error callback might make this not needed
+			throw new InitializationException();
 		}
 
 		untyped __cpp__('singleton = this');
@@ -81,6 +82,7 @@ class GLFW {
 
 		// TODO call onMonitorChange + allow register of callbacks
 		// glfwSetMonitorCallback();
+		// typedef void (* GLFWmonitorfun)(GLFWmonitor*,int);
 	}
 
 	public function createWindow(options:WindowOptions):Window {

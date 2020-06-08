@@ -1,6 +1,8 @@
 package glfw.errors;
 
 @:allow(glfw)
-class NoMonitorException {
-	function new() {}
+class NoMonitorException extends Exception {
+	function new() {
+		super("Cannot find a monitor");
+	}
 }

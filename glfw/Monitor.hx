@@ -141,7 +141,7 @@ class Monitor {
 
 	inline function validate() {
 		if (!connected) {
-			throw new MonitorDisconnectedException();
+			throw new MonitorDisconnectedException(this);
 		}
 
 		parent.validate();

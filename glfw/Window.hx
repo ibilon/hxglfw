@@ -301,7 +301,7 @@ class Window {
 			}
 		}
 
-		throw new NotFullscreenException();
+		throw new NotFullscreenException(this);
 	}
 
 	public function getPosition():{x:Int, y:Int} {
