@@ -1,7 +1,29 @@
 package glfw;
 
+import cpp.Float32;
 import glfw.errors.UseAfterDestroyException;
 
+/* TODO
+	public var aspectRatio(default, set):{numerator:Int, denominator:Int}; // TODO default value + that won't work if seting only one
+	GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
+
+	public var icon(default, set):Image; // TODO why multiple?
+	GLFWAPI void glfwSetWindowIcon(GLFWwindow* window, int count, const GLFWimage* images);
+
+	// TODO set same as aspectratio
+	public var position(get, set):{x:Int, y:Int};
+	GLFWAPI void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos);
+	GLFWAPI void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos);
+
+	// TODO set same as aspect ratio
+	public var size(get, set):{width:Int, height:Int};
+	GLFWAPI void glfwGetWindowSize(GLFWwindow* window, int* width, int* height);
+	GLFWAPI void glfwSetWindowSize(GLFWwindow* window, int width, int height);
+
+	public var sizeLimits(default, set):{minWidth:Int, minHeight:Int, maxWidth:Int, maxHeight:Int}; // TODO same as aspectRatio
+	GLFWAPI void glfwSetWindowSizeLimits(GLFWwindow* window, int minwidth, int minheight, int maxwidth, int maxheight);
+
+ */
 @:allow(glfw)
 @:cppNamespaceCode('
 	static void close_callback(GLFWwindow *window) {
@@ -107,9 +129,16 @@ import glfw.errors.UseAfterDestroyException;
 class Window {
 	static var windows:Array<Window> = [];
 
+	public var contentScale(get, never):{x:Float, y:Float};
+
 	var destroyed:Bool;
 
-	var parent:GLFW;
+	public var frameSize(get, never):{
+		left:Int,
+		top:Int,
+		right:Int,
+		bottom:Int
+	};
 
 	public var onClose:Array<() -> Void>;
 
@@ -127,9 +156,64 @@ class Window {
 
 	public var onSizeChange:Array<(width:Int, height:Int) -> Void>;
 
+	public var opacity(get, set):Float;
+
+	var parent:GLFW;
+
 	public var shouldClose(get, set):Bool;
 
 	public var title(default, set):String;
+
+	function get_contentScale():{x:Float, y:Float} {
+		validate();
+
+		var x:Float32 = 0.0;
+		var y:Float32 = 0.0;
+
+		untyped __cpp__('glfwGetWindowContentScale(native, &x, &y)');
+
+		return {
+			x: x,
+			y: y,
+		};
+	}
+
+	function get_frameSize():{
+		left:Int,
+		top:Int,
+		right:Int,
+		bottom:Int
+	} {
+		validate();
+
+		var left = 0;
+		var top = 0;
+		var right = 0;
+		var bottom = 0;
+
+		untyped __cpp__('glfwGetWindowFrameSize(native, &left, &top, &right, &bottom)');
+
+		return {
+			left: left,
+			top: top,
+			right: right,
+			bottom: bottom,
+		};
+	}
+
+	function get_opacity():Float {
+		validate();
+
+		return untyped __cpp__('glfwGetWindowOpacity(native)');
+	}
+
+	function set_opacity(value:Float):Float {
+		validate();
+
+		untyped __cpp__('glfwSetWindowOpacity(native, (float)value)');
+
+		return value;
+	}
 
 	function get_shouldClose():Bool {
 		validate();
@@ -194,6 +278,48 @@ class Window {
 		destroyed = true;
 
 		windows.remove(this);
+	}
+
+	public function focus():Void {
+		validate();
+
+		untyped __cpp__('glfwFocusWindow(native)');
+	}
+
+	public function hide():Void {
+		validate();
+
+		untyped __cpp__('glfwHideWindow(native)');
+	}
+
+	public function iconify():Void {
+		validate();
+
+		untyped __cpp__('glfwIconifyWindow(native)');
+	}
+
+	public function maximize():Void {
+		validate();
+
+		untyped __cpp__('glfwMaximizeWindow(native)');
+	}
+
+	public function requestAttention():Void {
+		validate();
+
+		untyped __cpp__('glfwRequestWindowAttention(native)');
+	}
+
+	public function restore():Void {
+		validate();
+
+		untyped __cpp__('glfwRestoreWindow(native)');
+	}
+
+	public function show():Void {
+		validate();
+
+		untyped __cpp__('glfwShowWindow(native)');
 	}
 
 	function validate() {
