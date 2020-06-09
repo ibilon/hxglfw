@@ -3,7 +3,7 @@
 	"url" : "https://github.com/ibilon/hxglfw/",
 	"license": "MIT",
 	"tags": ["window", "input", "desktop"],
-	"description": "",
+	"description": "hxglfw is a work in progress haxe/hxcpp wrapper around glfw",
 	"version": "0.0.1",
 	"releasenote": "Initial release",
 	"contributors": ["_ibilon"]

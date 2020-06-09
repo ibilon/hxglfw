@@ -1,9 +1,11 @@
 package glfw;
 
+#if macro
 import haxe.io.Path;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import sys.FileSystem;
+#end
 
 @:dox(hide)
 @:noCompletion
