@@ -2,6 +2,8 @@ package glfw;
 
 import cpp.Float32;
 import cpp.NativeString;
+import cpp.UInt32;
+import cpp.Star;
 import glfw.errors.*;
 
 @:allow(glfw)
@@ -443,6 +445,40 @@ class Window {
 		validate();
 
 		untyped __cpp__('glfwMaximizeWindow(native)');
+	}
+
+	public function nativeHandle():{
+		windowsHWND:Star<cpp.Void>,
+		macNSWindow:Star<cpp.Void>,
+		linuxX11Display:Star<cpp.Void>,
+		linuxX11Window:UInt32
+	} {
+		var windowsHWND:Star<cpp.Void> = cast 0;
+		var macNSWindow:Star<cpp.Void> = cast 0;
+		var linuxX11Display:Star<cpp.Void> = cast 0;
+		var linuxX11Window:UInt32 = 0;
+
+		untyped __cpp__('
+			#ifdef GLFW_EXPOSE_NATIVE_WIN32
+			windowsHWND = glfwGetWin32Window(native);
+			#endif
+
+			#ifdef GLFW_EXPOSE_NATIVE_COCOA
+			macNSWindow = glfwGetCocoaWindow(native);
+			#endif
+
+			#ifdef GLFW_EXPOSE_NATIVE_X11
+			linuxX11Display = glfwGetX11Display();
+			linuxX11Window = glfwGetX11Window(native);
+			#endif
+		');
+
+		return {
+			windowsHWND: windowsHWND,
+			macNSWindow: macNSWindow,
+			linuxX11Display: linuxX11Display,
+			linuxX11Window: linuxX11Window,
+		}
 	}
 
 	public function requestAttention():Void {
