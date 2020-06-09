@@ -1,5 +1,6 @@
 package glfw;
 
+import cpp.Star;
 import glfw.errors.*;
 import haxe.ds.ReadOnlyArray;
 
@@ -16,6 +17,10 @@ import haxe.ds.ReadOnlyArray;
 
 	static void error_callback(int code, const char *message) {
 		glfw::GLFW_obj::errorCallback(code, message);
+	}
+
+	static void monitor_callback(GLFWmonitor *monitor, int status) {
+		singleton->updateMonitor(monitor, status == GLFW_CONNECTED);
 	}
 ')
 @:headerInclude('./glfw.h')
@@ -44,6 +49,8 @@ class GLFW {
 	var _monitors:Array<Monitor>;
 
 	public var monitors(get, never):ReadOnlyArray<Monitor>;
+
+	public var onMonitorChange:Array<(monitor:Monitor, connected:Bool) -> Void>;
 
 	public var primaryMonitor(get, never):Monitor;
 
@@ -77,12 +84,22 @@ class GLFW {
 
 		untyped __cpp__('singleton = this');
 
-		_monitors = [];
-		inline onMonitorChange();
+		this._monitors = [];
+		this.onMonitorChange = [];
 
-		// TODO call onMonitorChange + allow register of callbacks
-		// glfwSetMonitorCallback();
-		// typedef void (* GLFWmonitorfun)(GLFWmonitor*,int);
+		untyped __cpp__('
+			int count;
+			GLFWmonitor **raw_monitors = glfwGetMonitors(&count);
+
+			for (unsigned int i = 0; i < count; ++i) {
+				glfw::Monitor monitor = glfw::Monitor_obj::__alloc(HX_CTX, this);
+				monitor->native = raw_monitors[i];
+				_monitors->push(monitor);
+			}
+
+			glfwSetMonitorCallback(monitor_callback);
+		');
+
 	}
 
 	public function createWindow(options:WindowOptions):Window {
@@ -100,31 +117,36 @@ class GLFW {
 		');
 	}
 
-	function onMonitorChange() {
-		// TODO Keep monitors that didn't change.
-		for (monitor in _monitors) {
-			monitor.connected = false;
-		}
-
-		_monitors = [];
-
-		untyped __cpp__('
-			int count;
-			GLFWmonitor **raw_monitors = glfwGetMonitors(&count);
-
-			for (unsigned int i = 0; i < count; ++i) {
-				glfw::Monitor monitor = glfw::Monitor_obj::__alloc(HX_CTX, this);
-				monitor->native = raw_monitors[i];
-				_monitors->push(monitor);
-			}
-		');
-
-	}
-
 	public function pollEvents():Void {
 		validate();
 
 		untyped __cpp__('glfwPollEvents();');
+	}
+
+	function updateMonitor(raw:Star<cpp.Void>, connected:Bool):Void {
+		var monitor:Null<Monitor> = null;
+
+		for (m in _monitors) {
+			if (untyped __cpp__('m->native == (GLFWmonitor*)raw')) {
+				monitor = m;
+				break;
+			}
+		}
+
+		if (monitor == null) {
+			monitor = new Monitor(this);
+			untyped __cpp__('monitor->native = (GLFWmonitor*)raw');
+		}
+
+		if (connected) {
+			_monitors.push(monitor);
+		} else {
+			_monitors.remove(monitor);
+		}
+
+		for (fn in onMonitorChange) {
+			fn(monitor, connected);
+		}
 	}
 
 	function validate() {

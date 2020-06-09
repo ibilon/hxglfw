@@ -19,6 +19,10 @@ class Main {
 			Sys.println('\tCurrent video mode: ${monitor.currentVideoMode}');
 		}
 
+		glfw.onMonitorChange.push((monitor, connected) -> {
+			trace(monitor, monitor.name, connected);
+		});
+
 		var window = glfw.createWindow({
 			title: "GLFW with Haxe",
 			width: 800,
@@ -29,7 +33,6 @@ class Main {
 
 		while (!window.shouldClose) {
 			glfw.pollEvents();
-			// TODO close on esc
 		}
 
 		window.destroy();
