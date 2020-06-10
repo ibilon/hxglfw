@@ -10,6 +10,9 @@ import sys.FileSystem;
 @:dox(hide)
 @:noCompletion
 class GLFWBuilder {
+	/**
+		Build macro for GLFW, adds a @:buildXml meta with the correct path to the built static library.
+	**/
 	public static macro function build():Array<Field> {
 		var path = switch (Context.getType("glfw.GLFWBuilder")) {
 			case TInst(_.get() => t, _):

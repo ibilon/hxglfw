@@ -4,9 +4,11 @@
 
 API Documentation: <https://ibilon.github.io/hxglfw/>
 
-hxglfw is a work in progress haxe/hxcpp wrapper around glfw, this is not the c api.
+hxglfw is a work in progress haxe/hxcpp wrapper around GLFW, this is not the C api.
 
 Currently only tested on linux with X11.
+
+The library is null safe.
 
 Plans:
 
@@ -14,7 +16,7 @@ Plans:
 
 ## Building
 
-hxglfw requires building glfw, see <https://www.glfw.org/docs/latest/compile.html#compile_deps> for the required dependencies.
+hxglfw requires building GLFW, see <https://www.glfw.org/docs/latest/compile.html#compile_deps> for the required dependencies.
 
 ## Usage
 
@@ -24,4 +26,4 @@ A small example is available in `sample/`, compile it with `haxe sample.hxml` an
 
 ## License
 
-This library is [zlib licensed](https://github.com/ibilon/hxglfw/blob/LICENSE.md), the statically linked glfw is [zlib licensed](https://github.com/glfw/glfw/blob/master/LICENSE.md) including its documentation which is reused for this library.
+This library is [zlib licensed](https://github.com/ibilon/hxglfw/blob/LICENSE.md), the statically linked GLFW is [zlib licensed](https://github.com/glfw/glfw/blob/master/LICENSE.md) including its documentation which is reused for this library.

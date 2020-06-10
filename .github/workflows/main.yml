@@ -28,7 +28,7 @@ jobs:
     - name: Build and deploy documentation
       run: |
         haxe sample.hxml -xml documentation/hxglfw.xml
-        haxelib run dox -o documentation/out/ -i documentation/hxglfw.xml -in glfw --title "hxglfw API reference" --toplevel-package glfw --keep-field-order -D version 0.0.1 -D source-path https://github.com/ibilon/hxglfw/blob/master/ -D website https://github.com/ibilon/hxglfw -D description "hxglfw is a work in progress haxe/hxcpp wrapper around glfw"
+        haxelib run dox -o documentation/out/ -i documentation/hxglfw.xml -in glfw --title "hxglfw API reference" --toplevel-package glfw --keep-field-order -D version 0.0.1 -D source-path https://github.com/ibilon/hxglfw/blob/master/ -D website https://github.com/ibilon/hxglfw -D description "hxglfw is a work in progress haxe/hxcpp wrapper around GLFW"
         cd documentation/out
         git init
         git config --global user.name "${{ github.actor }}"
