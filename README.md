@@ -8,7 +8,7 @@ hxglfw is a work in progress haxe/hxcpp wrapper around GLFW, this is not the C a
 
 Currently only tested on linux with X11.
 
-The library is null safe.
+The library is null safe and compatible cppia, see `cppia_host.hxml` and `sample.hxml` on how to use cppia.
 
 Plans:
 

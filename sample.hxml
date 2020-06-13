@@ -1,6 +1,5 @@
---macro nullSafety("glfw", Strict)
---macro include("glfw")
 extraParams.hxml
 --main sample.Main
 --debug
---cpp sample/build/
+--cppia build/sample.cppia
+-D dll_import=build/export_classes.info

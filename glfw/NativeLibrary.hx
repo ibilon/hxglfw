@@ -89,6 +89,9 @@ class NativeLibrary {
 				File.copy(Path.join([path, "glfw-native", "build", "src", "libglfw3.a"]), Path.join([path, "build", "libglfw3.a"]));
 				File.saveContent(Path.join([path, "build", "hash.txt"]), version);
 
+				// Clean up build
+				Sys.command("rm", ["-r", build]); // TODO macos/windows
+
 			default:
 				throw "can't find the glfw.NativeLibrary type";
 		}

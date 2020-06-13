@@ -1,6 +1,6 @@
 package glfw;
 
-import cpp.Star;
+import cpp.Pointer;
 import glfw.errors.*;
 import haxe.ds.ReadOnlyArray;
 
@@ -202,9 +202,9 @@ class GLFW {
 		');
 	}
 
-	function findMonitor(ptr:Star<cpp.Void>):Null<Monitor> {
+	function findMonitor(ptr:Pointer<cpp.Void>):Null<Monitor> {
 		for (m in _monitors) {
-			if (untyped __cpp__('m->native == (GLFWmonitor*)ptr')) {
+			if (untyped __cpp__('m->native == (GLFWmonitor*)((void*)ptr)')) {
 				return m;
 			}
 		}
@@ -233,12 +233,12 @@ class GLFW {
 	/**
 		Called from `glfwSetMonitorCallback`.
 	**/
-	function updateMonitor(raw:Star<cpp.Void>, connected:Bool):Void {
+	function updateMonitor(raw:Pointer<cpp.Void>, connected:Bool):Void {
 		var monitor = findMonitor(raw);
 
 		if (monitor == null) {
 			monitor = new Monitor(this);
-			untyped __cpp__('monitor->native = (GLFWmonitor*)raw');
+			untyped __cpp__('monitor->native = (GLFWmonitor*)((void*)raw)');
 		}
 
 		if (connected) {
@@ -258,7 +258,7 @@ class GLFW {
 		// Move the primary monitor to the start of the array.
 		var primary = switch (findMonitor(untyped __cpp__('glfwGetPrimaryMonitor()'))) {
 			case null: throw "assert false";
-			case value: value;
+			case value: (value : Monitor);
 		}
 
 		_monitors.remove(primary);

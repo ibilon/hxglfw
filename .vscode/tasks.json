@@ -2,6 +2,20 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			"label": "Build host",
+			"type": "process",
+			"command": "haxe",
+			"args": [
+				"cppia_host.hxml"
+			],
+			"problemMatcher": [
+				"$haxe-absolute",
+				"$haxe",
+				"$haxe-error",
+				"$haxe-trace"
+			]
+		},
+		{
 			"label": "Build sample",
 			"type": "process",
 			"command": "haxe",
@@ -18,8 +32,10 @@
 		{
 			"label": "Run sample",
 			"type": "process",
-			"command": "./sample/build/Main-debug",
-			"args": [],
+			"command": "./build/cppia_host/CppiaHost-debug",
+			"args": [
+				"build/sample.cppia"
+			],
 			"problemMatcher": [],
 			"dependsOn": "Build sample",
 			"group": {
@@ -32,7 +48,7 @@
 			"type": "process",
 			"command": "haxe",
 			"args": [
-				"sample.hxml",
+				"cppia_host.hxml",
 				"-xml",
 				"documentation/hxglfw.xml",
 				"-D",
