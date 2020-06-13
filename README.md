@@ -22,7 +22,11 @@ hxglfw requires building GLFW, see <https://www.glfw.org/docs/latest/compile.htm
 
 Make sure to clone this repository with `--recursive`, or download the submodule with `git submodule update --init`.
 
-A small example is available in `sample/`, compile it with `haxe sample.hxml` and run it with `./sample/build/Main-debug`.
+A small example is available in `sample/`:
+
+* Compile the cppia host with `haxe cppia_host.hxml`, this only to be rebuilt if you change/update the hxglfw library
+* Compile the sample with `haxe sample.hxml`
+* Run it with `./build/cppia_host/CppiaHost-debug build/sample.cppia`.
 
 ## License
 
