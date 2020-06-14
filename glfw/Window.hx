@@ -183,7 +183,7 @@ class Window {
 
 		See `CursorMode` for more details about the available modes.
 	**/
-	public var cursorMode(default, set):CursorMode;
+	public var cursorMode(get, set):CursorMode;
 
 	/**
 		Whether the windowed mode window will have window decorations such as a border, a close widget, etc. An undecorated window will not be resizable by the user but will still allow the user to generate close events on some platforms.
@@ -427,12 +427,18 @@ class Window {
 		return cursor = value;
 	}
 
+	function get_cursorMode():CursorMode {
+		validate();
+
+		return untyped __cpp__('glfwGetInputMode(native, GLFW_CURSOR)');
+	}
+
 	function set_cursorMode(value:CursorMode):CursorMode {
 		validate();
 
 		untyped __cpp__('glfwSetInputMode(native, GLFW_CURSOR, value)');
 
-		return cursorMode = value;
+		return value;
 	}
 
 	function get_decorated():Bool {
@@ -570,7 +576,6 @@ class Window {
 
 	function new(parent:GLFW, options:WindowOptions) {
 		@:bypassAccessor this.cursor = null;
-		@:bypassAccessor this.cursorMode = Normal;
 		this.onClose = [];
 		this.onContentScaleChange = [];
 		this.onFocusChange = [];

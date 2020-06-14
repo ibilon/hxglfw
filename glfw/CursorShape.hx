@@ -1,5 +1,10 @@
 package glfw;
 
+/**
+	Cursor shape.
+
+	Not all shapes are available on all platforms, see `GLFW.createStandardCursor` for more details.
+**/
 enum abstract CursorShape(Int) {
 	/** The regular arrow cursor shape. **/
 	var Arrow = 0x00036001;
