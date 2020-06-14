@@ -143,6 +143,79 @@ class GLFW {
 	}
 
 	/**
+		Creates a new custom cursor image that can be set for a window with `Window.cursor`.
+
+		The cursor can be destroyed `Cursor.destroy`, any remaining cursors are destroyed by `GLFW.destroy`.
+
+		The cursor hotspot is specified in pixels, relative to the upper-left corner of the cursor image. Like all other coordinate systems in GLFW, the X-axis points to the right and the Y-axis points down.
+
+		@param image The desired cursor image.
+		@param x The desired x-coordinate, in pixels, of the cursor hotspot.
+		@param y The desired y-coordinate, in pixels, of the cursor hotspot.
+
+		@return The created cursor.
+	**/
+	public function createCursor(image:Image, x:Int, y:Int):Cursor {
+		var cursor = new Cursor(this);
+
+		untyped __cpp__('
+			unsigned char *pixels = (unsigned char*)malloc(sizeof(*pixels) * image->pixels->length);
+
+			for (unsigned int i = 0; i < image->pixels->length; ++i) {
+				pixels[i] = image->pixels->__get(i);
+			}
+
+			GLFWimage native_image = {
+				width: image->width,
+				height: image->height,
+				pixels: pixels,
+			};
+
+			cursor->native = glfwCreateCursor(&native_image, x, y);
+
+			free(pixels);
+		');
+
+		return cursor;
+	}
+
+	/**
+		Creates a cursor with a standard shape, that can be set for a window with `Window.cursor`.
+
+		The images for these cursors come from the system cursor theme and their exact appearance will vary between platforms.
+
+		Most of these shapes are guaranteed to exist on every supported platform but a few may not be present. See the table below for details.
+
+		Cursor shape                   | Windows | macOS   | X11       | Wayland
+		------------------------------ | ------- | ------- | --------- | -------
+		`CursorMode.Arrow`             | Yes     | Yes     | Yes       | Yes
+		`CursorMode.IBeam`             | Yes     | Yes     | Yes       | Yes
+		`CursorMode.Crosshair`         | Yes     | Yes     | Yes       | Yes
+		`CursorMode.PointingHand`      | Yes     | Yes     | Yes       | Yes
+		`CursorMode.ResizeEW`          | Yes     | Yes     | Yes       | Yes
+		`CursorMode.ResizeNS`          | Yes     | Yes     | Yes       | Yes
+		`CursorMode.ResizeNWSE`        | Yes     | Yes (1) | Maybe (2) | Maybe (2)
+		`CursorMode.ResizeNESW`        | Yes     | Yes (1) | Maybe (2) | Maybe (2)
+		`CursorMode.ResizeAll`         | Yes     | Yes     | Yes       | Yes
+		`CursorMode.NotAllowed`        | Yes     | Yes     | Maybe (2) | Maybe (2)
+
+		(1) This uses a private system API and may fail in the future.
+
+		(2) This uses a newer standard that not all cursor themes support.
+
+		@param shape One of the standard shapes in `CursorShape`.
+
+		@return The created cursor.
+	**/
+	public function createStandardCursor(shape:CursorShape):Cursor {
+		var cursor = new Cursor(this);
+
+		untyped __cpp__('cursor->native = glfwCreateStandardCursor(shape)');
+
+		return cursor;
+	}
+
+	/**
 		Create a window with the options `options`.
 
 		To create a fullscreen window, you need to specify the monitor the window will cover in `WindowOptions.monitor`. If no monitor is specified, the window will be windowed mode.
@@ -252,7 +325,7 @@ class GLFW {
 		}
 
 		if (!connected) {
-			monitor.valid = false;
+			untyped __cpp__('monitor->native = nullptr');
 		}
 
 		// Move the primary monitor to the start of the array.

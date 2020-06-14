@@ -81,8 +81,6 @@ class Monitor {
 	**/
 	public var position(get, never):{x:Int, y:Int};
 
-	var valid:Bool;
-
 	/**
 		The available video modes of the monitor.
 
@@ -206,11 +204,10 @@ class Monitor {
 	function new(parent:GLFW) {
 		this.parent = parent;
 		this.onDisconnect = [];
-		this.valid = true;
 	}
 
 	inline function validate() {
-		if (!valid) {
+		if (untyped __cpp__('native == nullptr')) {
 			throw new MonitorDisconnectedException(this);
 		}
 

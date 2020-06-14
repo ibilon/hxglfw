@@ -166,13 +166,31 @@ class Window {
 	public var contentScale(get, never):{x:Float, y:Float};
 
 	/**
+		The cursor of the window.
+
+		This is the cursor image to be used when the cursor is over the content area of the window.
+
+		Set this to `null` (the default value) to return to the system cursor.
+
+		It will only be visible if the `Window.cursorMode` is `CursorMode.Normal`.
+
+		On some platforms, the set cursor may not be visible unless the window also has input focus.
+	**/
+	public var cursor(default, set):Null<Cursor>;
+
+	/**
+		The mode of the cursor, default to `CursorMode.Normal`.
+
+		See `CursorMode` for more details about the available modes.
+	**/
+	public var cursorMode(default, set):CursorMode;
+
+	/**
 		Whether the windowed mode window will have window decorations such as a border, a close widget, etc. An undecorated window will not be resizable by the user but will still allow the user to generate close events on some platforms.
 
 		This is ignored for fullscreen windows.
 	**/
 	public var decorated(get, set):Bool;
-
-	var destroyed:Bool;
 
 	/**
 		Whether the windowed mode window will be floating above other regular windows, also called topmost or always-on-top. This is intended primarily for debugging purposes and cannot be used to implement proper fullscreen windows.
@@ -401,6 +419,22 @@ class Window {
 		};
 	}
 
+	function set_cursor(value:Null<Cursor>):Null<Cursor> {
+		validate();
+
+		untyped __cpp__('glfwSetCursor(native, hx::IsNull(value) ? nullptr : value->native)');
+
+		return cursor = value;
+	}
+
+	function set_cursorMode(value:CursorMode):CursorMode {
+		validate();
+
+		untyped __cpp__('glfwSetInputMode(native, GLFW_CURSOR, value)');
+
+		return cursorMode = value;
+	}
+
 	function get_decorated():Bool {
 		validate();
 
@@ -535,7 +569,8 @@ class Window {
 	}
 
 	function new(parent:GLFW, options:WindowOptions) {
-		this.destroyed = false;
+		@:bypassAccessor this.cursor = null;
+		@:bypassAccessor this.cursorMode = Normal;
 		this.onClose = [];
 		this.onContentScaleChange = [];
 		this.onFocusChange = [];
@@ -626,8 +661,10 @@ class Window {
 	public function destroy():Void {
 		validate();
 
-		untyped __cpp__('glfwDestroyWindow(native)');
-		destroyed = true;
+		untyped __cpp__('
+			glfwDestroyWindow(native);
+			native = nullptr;
+		');
 
 		windows.remove(this);
 	}
@@ -1031,7 +1068,7 @@ class Window {
 	}
 
 	function validate() {
-		if (destroyed) {
+		if (untyped __cpp__('native == nullptr')) {
 			throw new UseAfterDestroyException();
 		}
 

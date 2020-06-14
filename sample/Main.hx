@@ -29,6 +29,8 @@ class Main {
 			height: 600,
 		});
 
+		window.cursor = glfw.createStandardCursor(NotAllowed);
+
 		window.onPositionChange.push((x, y) -> trace('Moved to [$x, $y]'));
 
 		while (!window.shouldClose) {
