@@ -8,7 +8,7 @@ package glfw.errors;
 @:allow(glfw)
 class MonitorDisconnectedException extends Exception {
 	/** The monitor that was incorrectly used. **/
-	public final monitor:Monitor;
+	public var monitor(default, null):Monitor;
 
 	function new(monitor:Monitor) {
 		super("The monitor was disconnected");

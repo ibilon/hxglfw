@@ -21,6 +21,10 @@ import haxe.ds.ReadOnlyArray;
 		glfw::GLFW_obj::errorCallback(code, message);
 	}
 
+	static void gamepad_callback(int id, int event) {
+		singleton->_onGamepadChange(id, event == GLFW_CONNECTED);
+	}
+
 	static void monitor_callback(GLFWmonitor *monitor, int status) {
 		singleton->updateMonitor(monitor, status == GLFW_CONNECTED);
 	}
@@ -52,6 +56,15 @@ class GLFW {
 		};
 	}
 
+	/**
+		Array of possible gamepads.
+
+		This is a set of 15 preallocated `Gamepad` instances, the gamepads are not necessarily connected, check with `Gamepad.connected` or use `GLFW.getConnectedGamepads` to only get the gamepads that are connected.
+
+		Use `GLFW.onGamepadChange` or `Gamepad.onStatusChange` to be notified of gamepad connections and disconnections.
+	**/
+	public var gamepads(default, null):ReadOnlyArray<Gamepad>;
+
 	var _monitors:Array<Monitor>;
 
 	/**
@@ -62,6 +75,20 @@ class GLFW {
 		The `Monitor` instances are only valid until the instance is destroyed or the monitor gets disconnected.
 	**/
 	public var monitors(get, never):ReadOnlyArray<Monitor>;
+
+	/**
+		The callbacks to be called when a gamepad is connected or disconnected from the system.
+
+		Disconnecting then reconnecting the same physical gamepad is not guaranteed to map to the same `Gamepad` object.
+
+		Arguments:
+
+		* `gamepad` The gamepad that was connected or disconnected.
+		* `connected` True if the gamepad was connected, false if disconnected.
+
+		To add a callback push a function to this array.
+	**/
+	public var onGamepadChange:Array<(gamepad:Gamepad, connected:Bool) -> Void>;
 
 	/**
 		The callbacks to be called when a monitor is connected to or disconnected from the system.
@@ -115,7 +142,10 @@ class GLFW {
 			throw new AlreadyInitializedException();
 		}
 
-		untyped __cpp__('glfwSetErrorCallback(error_callback)');
+		untyped __cpp__('
+			glfwSetErrorCallback(error_callback);
+			glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
+		');
 
 		if (untyped __cpp__('glfwInit()') == 0) {
 			// TODO error callback might make this not needed
@@ -125,7 +155,9 @@ class GLFW {
 		untyped __cpp__('singleton = this');
 
 		this._monitors = [];
+		this.onGamepadChange = [];
 		this.onMonitorChange = [];
+		this.gamepads = [for (i in 0...16) new Gamepad(this, i)];
 
 		untyped __cpp__('
 			int count;
@@ -137,6 +169,7 @@ class GLFW {
 				_monitors->push(monitor);
 			}
 
+			glfwSetJoystickCallback(gamepad_callback);
 			glfwSetMonitorCallback(monitor_callback);
 		');
 
@@ -286,6 +319,34 @@ class GLFW {
 	}
 
 	/**
+		Get the connected gamepads.
+
+		This is a subset from `GLFW.gamepads` implemented with:
+		```haxe
+		return gamepads.filter(g -> g.connected);
+		```
+	**/
+	public function getConnectedGamepads():Array<Gamepad> {
+		return gamepads.filter(g -> g.connected);
+	}
+
+	function _onGamepadChange(id:Int, connected:Bool):Void {
+		if (id > 15) {
+			return;
+		}
+
+		final gamepad = gamepads[id];
+
+		for (fn in onGamepadChange) {
+			fn(gamepad, connected);
+		}
+
+		for (fn in gamepad.onStatusChange) {
+			fn(connected);
+		}
+	}
+
+	/**
 		Processes all pending events.
 
 		This function processes only those events that are already in the event queue and then returns immediately.  Processing events will cause the window and input callbacks associated with those events to be called.
@@ -294,13 +355,34 @@ class GLFW {
 		You can use the `Window.onRefresh` callback to redraw the contents of your window when necessary during such operations.
 
 		Do not assume that callbacks you set will _only_ be called in response to event processing functions like this one. While it is necessary to poll for events, window systems that require GLFW to register callbacks of its own can pass events to GLFW in response to many window system function calls. GLFW will pass those events on to the application callbacks before returning.
-
-		Event processing is not required for joystick input to work.
 	**/
 	public function pollEvents():Void {
 		validate();
 
 		untyped __cpp__('glfwPollEvents();');
+
+		for (gamepad in gamepads) {
+			gamepad.update();
+		}
+	}
+
+	/**
+		Adds the specified SDL_GameControllerDB gamepad mappings.
+
+		This parses the specified ASCII encoded string and updates the internal list with any gamepad mappings it finds.
+
+		This string may contain either a single gamepad mapping or many mappings separated by newlines.
+
+		The parser supports the full format of the `gamecontrollerdb.txt` source file including empty lines and comments.
+
+		If there is already a gamepad mapping for a given GUID in the internal list, it will be replaced by the one passed to this function.
+
+		If the library is terminated and re-initialized the internal list will revert to the built-in default.
+
+		@param patch The string containing the gamepad mappings patch.
+	**/
+	public function updateGamepadMappings(patch:String):Void {
+		untyped __cpp__('glfwUpdateGamepadMappings(patch)');
 	}
 
 	/**

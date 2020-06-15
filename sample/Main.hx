@@ -23,6 +23,21 @@ class Main {
 			trace(monitor, monitor.name, connected);
 		});
 
+		for (gamepad in glfw.getConnectedGamepads()) {
+			Sys.println('Gamepad ${gamepad.name}');
+			Sys.println('\tID ${gamepad.id}');
+			Sys.println('\tGUID ${gamepad.guid}');
+			Sys.println('\tMapping ${gamepad.hasMapping}');
+		}
+
+		glfw.onGamepadChange.push((gamepad, connected) -> {
+			if (connected) {
+				trace('Gamepad ${gamepad.id} connected (${gamepad.name})');
+			} else {
+				trace('Gamepad ${gamepad.id} disconnected');
+			}
+		});
+
 		var window = glfw.createWindow({
 			title: "GLFW with Haxe",
 			width: 800,

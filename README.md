@@ -6,13 +6,19 @@ API Documentation: <https://ibilon.github.io/hxglfw/>
 
 hxglfw is a work in progress haxe/hxcpp wrapper around GLFW, this is not the C api.
 
-Currently only tested on linux with X11.
+The library is [null safe](https://haxe.org/manual/cr-null-safety.html) and compatible [cppia](https://haxe.org/manual/target-cppia.html), see `cppia_host.hxml` and `sample.hxml` on how to use cppia.
 
-The library is null safe and compatible cppia, see `cppia_host.hxml` and `sample.hxml` on how to use cppia.
+This cover:
 
-Plans:
+* Monitor querying
+* Window creation
+* Gamepad input
+* [**Planned**] Mouse/keyboard input
+* [**Planned**] Windows/MacOS/Linux wayland support
 
-* Add mouse/keyboard/gamepad support
+This does **not** cover OpenGL context creation/manipulation.
+
+If a feature from GLFW you need is missing please open an [issue](https://github.com/ibilon/hxglfw/issues).
 
 ## Building
 
