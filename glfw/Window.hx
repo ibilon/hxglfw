@@ -23,6 +23,8 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onClose->length; ++j) {
 					elem->onClose->__get(j)();
 				}
+
+				return;
 			}
 		}
 	}
@@ -35,6 +37,36 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onContentScaleChange->length; ++j) {
 					elem->onContentScaleChange->__get(j)(x, y);
 				}
+
+				return;
+			}
+		}
+	}
+
+	static void cursor_enter_callback(GLFWwindow *window, int entered) {
+		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
+			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+
+			if (elem->native == window) {
+				for (unsigned int j = 0; j < elem->onCursorHoverChange->length; ++j) {
+					elem->onCursorHoverChange->__get(j)(entered == GLFW_TRUE);
+				}
+
+				return;
+			}
+		}
+	}
+
+	static void cursor_pos_callback(GLFWwindow *window, double x, double y) {
+		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
+			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+
+			if (elem->native == window) {
+				for (unsigned int j = 0; j < elem->onCursorPositionChange->length; ++j) {
+					elem->onCursorPositionChange->__get(j)(x, y);
+				}
+
+				return;
 			}
 		}
 	}
@@ -54,6 +86,8 @@ import glfw.errors.*;
 
 					elem->onPathDrop->__get(j)(haxe_paths);
 				}
+
+				return;
 			}
 		}
 	}
@@ -66,6 +100,8 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onFocusChange->length; ++j) {
 					elem->onFocusChange->__get(j)(focused == GLFW_TRUE);
 				}
+
+				return;
 			}
 		}
 	}
@@ -78,6 +114,8 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onIconifyChange->length; ++j) {
 					elem->onIconifyChange->__get(j)(iconified == GLFW_TRUE);
 				}
+
+				return;
 			}
 		}
 	}
@@ -90,6 +128,22 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onMaximizeChange->length; ++j) {
 					elem->onMaximizeChange->__get(j)(maximized == GLFW_TRUE);
 				}
+
+				return;
+			}
+		}
+	}
+
+	static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
+		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
+			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+
+			if (elem->native == window) {
+				for (unsigned int j = 0; j < elem->onMouseButton->length; ++j) {
+					elem->onMouseButton->__get(j)(button, action == GLFW_PRESS);
+				}
+
+				return;
 			}
 		}
 	}
@@ -102,6 +156,8 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onPositionChange->length; ++j) {
 					elem->onPositionChange->__get(j)(x, y);
 				}
+
+				return;
 			}
 		}
 	}
@@ -114,6 +170,22 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onRefresh->length; ++j) {
 					elem->onRefresh->__get(j)();
 				}
+
+				return;
+			}
+		}
+	}
+
+	static void scroll_callback(GLFWwindow *window, double x, double y) {
+		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
+			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+
+			if (elem->native == window) {
+				for (unsigned int j = 0; j < elem->onMouseScroll->length; ++j) {
+					elem->onMouseScroll->__get(j)(x, y);
+				}
+
+				return;
 			}
 		}
 	}
@@ -126,6 +198,8 @@ import glfw.errors.*;
 				for (unsigned int j = 0; j < elem->onSizeChange->length; ++j) {
 					elem->onSizeChange->__get(j)(width, height);
 				}
+
+				return;
 			}
 		}
 	}
@@ -186,6 +260,26 @@ class Window {
 	public var cursorMode(get, set):CursorMode;
 
 	/**
+		The horizontal position of the cursor, in screen coordinates, relative to the upper-left corner of the content area of the window.
+
+		If the cursor is disabled (`Window.cursorMode` is `CursorMode.Disabled`) then the cursor position is unbounded and limited only by the minimum and maximum values of a `Float`.
+
+		The coordinate can be converted to their integer equivalents with the `Math.floor` function.
+		Casting directly to an integer type works for positive coordinates, but fails for negative ones.
+	**/
+	public var cursorPositionX(get, set):Float;
+
+	/**
+		The vertical position of the cursor, in screen coordinates, relative to the upper-left corner of the content area of the window.
+
+		If the cursor is disabled (`Window.cursorMode` is `CursorMode.Disabled`) then the cursor position is unbounded and limited only by the minimum and maximum values of a `Float`.
+
+		The coordinate can be converted to their integer equivalents with the `Math.floor` function.
+		Casting directly to an integer type works for positive coordinates, but fails for negative ones.
+	**/
+	public var cursorPositionY(get, set):Float;
+
+	/**
 		Whether the windowed mode window will have window decorations such as a border, a close widget, etc. An undecorated window will not be resizable by the user but will still allow the user to generate close events on some platforms.
 
 		This is ignored for fullscreen windows.
@@ -236,6 +330,14 @@ class Window {
 	public var maximized(get, never):Bool;
 
 	/**
+		Whether sticky mouse buttons are enabled.
+
+		If true a mouse button press will ensure that `Window.getMouseButton` returns `true` the next time it is called even if the mouse button had been released before the call.
+		This is useful when you are only interested in whether mouse buttons have been pressed but not when or in which order.
+	**/
+	public var mouseButtonsSticky(get, set):Bool;
+
+	/**
 		The callbacks to be called when the window is closed.
 
 		It is called when the user attempts to close the window, for example by clicking the close widget in the title bar.
@@ -263,6 +365,29 @@ class Window {
 		@see `Window.contentScale`
 	**/
 	public var onContentScaleChange:Array<(x:Float, y:Float) -> Void>;
+
+	/**
+		The callbacks to be called when the window's cursor enter or leave the window's content area.
+
+		Arguments:
+
+		* `inside` True if the cursor is over the window's content area.
+
+		To add a callback push a function to this array.
+	**/
+	public var onCursorHoverChange:Array<(inside:Bool) -> Void>;
+
+	/**
+		The callbacks to be called when the window's cursor change position.
+
+		Arguments:
+
+		* `x` The new cursor x-coordinate, relative to the left edge of the content area.
+		* `y` The new cursor y-coordinate, relative to the left edge of the content area.
+
+		To add a callback push a function to this array.
+	**/
+	public var onCursorPositionChange:Array<(x:Float, y:Float) -> Void>;
 
 	/**
 		The callbacks to be called when the window gains or loses input focus.
@@ -296,6 +421,33 @@ class Window {
 		To add a callback push a function to this array.
 	**/
 	public var onMaximizeChange:Array<(maximized:Bool) -> Void>;
+
+	/**
+		The callbacks to be called when a mouse button is pressed or released.
+
+		When a window loses input focus, it will generate synthetic mouse button release events for all pressed mouse buttons.
+		You can tell these events from user-generated events by the fact that the synthetic ones are generated after the focus loss event has been processed, i.e. after the `Window.onFocusChange` have been called.
+
+		Arguments:
+
+		* `button` The button that was pressed or released.
+		* `pressed` True if the button was pressed, false if released.
+
+		To add a callback push a function to this array.
+	**/
+	public var onMouseButton:Array<(button:MouseButton, pressed:Bool) -> Void>; // TODO modifier keys argument
+
+	/**
+		The callbacks to be called when a scrolling device is used, such as a mouse wheel or scrolling area of a touchpad.
+
+		Arguments:
+
+		* `x` The scroll offset along the x-axis.
+		* `y` The scroll offset along the y-axis.
+
+		To add a callback push a function to this array.
+	**/
+	public var onMouseScroll:Array<(x:Float, y:Float) -> Void>;
 
 	/**
 		The callbacks to be called when one or more dragged paths are dropped on the window.
@@ -352,6 +504,27 @@ class Window {
 	public var opacity(get, set):Float;
 
 	var parent:GLFW;
+
+	/**
+		Whether raw mouse motion is enabled.
+
+		Raw mouse motion is closer to the actual motion of the mouse across a surface.
+		It is not affected by the scaling and acceleration applied to the motion of the desktop cursor.
+		That processing is suitable for a cursor while raw motion is better for controlling for example a 3D camera.
+		Because of this, raw mouse motion is only provided when the cursor is disabled.
+
+		Setting this to `true` if `Window.rawMouseMotionSupported` is `false` will leave it to `false`.
+	**/
+	public var rawMouseMotion(get, set):Bool;
+
+	/**
+		Whether raw mouse motion is supported on the current system.
+
+		This status does not change after GLFW has been initialized so you only need to check this once.
+
+		@see `Window.rawMouseMotion`
+	**/
+	public var rawMouseMotionSupported(get, never):Bool;
 
 	/**
 		Whether the windowed mode window will be resizable by the user. The window will still be resizable using the `Window.setSize` function.
@@ -441,6 +614,46 @@ class Window {
 		return value;
 	}
 
+	function get_cursorPositionX():Float {
+		validate();
+
+		var position = 0.0;
+		untyped __cpp__('glfwGetCursorPos(native, &position, nullptr)');
+		return position;
+	}
+
+	function set_cursorPositionX(value:Float):Float {
+		validate();
+
+		untyped __cpp__('
+			double y;
+			glfwGetCursorPos(native, nullptr, &y);
+			glfwSetCursorPos(native, value, y);
+		');
+
+		return value;
+	}
+
+	function get_cursorPositionY():Float {
+		validate();
+
+		var position = 0.0;
+		untyped __cpp__('glfwGetCursorPos(native, nullptr, &position)');
+		return position;
+	}
+
+	function set_cursorPositionY(value:Float):Float {
+		validate();
+
+		untyped __cpp__('
+			double x;
+			glfwGetCursorPos(native, &x, nullptr);
+			glfwSetCursorPos(native, x, value);
+		');
+
+		return value;
+	}
+
 	function get_decorated():Bool {
 		validate();
 
@@ -518,6 +731,19 @@ class Window {
 		return untyped __cpp__('glfwGetWindowAttrib(native, GLFW_MAXIMIZED)');
 	}
 
+	function get_mouseButtonsSticky():Bool {
+		validate();
+
+		return untyped __cpp__('glfwGetInputMode(native, GLFW_STICKY_MOUSE_BUTTONS) == GLFW_TRUE');
+	}
+
+	function set_mouseButtonsSticky(value:Bool):Bool {
+		validate();
+
+		untyped __cpp__('glfwSetInputMode(native, GLFW_STICKY_MOUSE_BUTTONS, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
 	function get_opacity():Float {
 		validate();
 
@@ -530,6 +756,29 @@ class Window {
 		untyped __cpp__('glfwSetWindowOpacity(native, (float)value)');
 
 		return value;
+	}
+
+	function get_rawMouseMotion():Bool {
+		validate();
+
+		return untyped __cpp__('glfwGetInputMode(native, GLFW_RAW_MOUSE_MOTION) == GLFW_TRUE');
+	}
+
+	function set_rawMouseMotion(value:Bool):Bool {
+		validate();
+
+		if (!rawMouseMotionSupported) {
+			return false;
+		}
+
+		untyped __cpp__('glfwSetInputMode(native, GLFW_RAW_MOUSE_MOTION, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
+	function get_rawMouseMotionSupported():Bool {
+		validate();
+
+		return untyped __cpp__('glfwRawMouseMotionSupported() == GLFW_TRUE');
 	}
 
 	function get_resizable():Bool {
@@ -578,9 +827,13 @@ class Window {
 		@:bypassAccessor this.cursor = null;
 		this.onClose = [];
 		this.onContentScaleChange = [];
+		this.onCursorHoverChange = [];
+		this.onCursorPositionChange = [];
 		this.onFocusChange = [];
 		this.onIconifyChange = [];
 		this.onMaximizeChange = [];
+		this.onMouseButton = [];
+		this.onMouseScroll = [];
 		this.onPathDrop = [];
 		this.onPositionChange = [];
 		this.onRefresh = [];
@@ -638,7 +891,11 @@ class Window {
 
 			native = glfwCreateWindow(options->width, options->height, options->title, nullptr, nullptr);
 
+			glfwSetCursorEnterCallback(native, cursor_enter_callback);
+			glfwSetCursorPosCallback(native, cursor_pos_callback);
 			glfwSetDropCallback(native, drop_callback);
+			glfwSetMouseButtonCallback(native, mouse_button_callback);
+			glfwSetScrollCallback(native, scroll_callback);
 			glfwSetWindowCloseCallback(native, close_callback);
 			glfwSetWindowContentScaleCallback(native, contentscale_callback);
 			glfwSetWindowFocusCallback(native, focus_callback);
@@ -712,6 +969,21 @@ class Window {
 		}
 
 		throw new NotFullscreenException(this);
+	}
+
+	/**
+		Returns the last reported state of a mouse button.
+
+		If `Window.mouseButtonSticky` is true, this function returns `true` the first time you call it for a mouse button that was pressed, even if that mouse button has already been released.
+
+		@param button The mouse button to get.
+
+		@return True if the `button` is pressed, false otherwise.
+	**/
+	public function getMouseButton(button:MouseButton):Bool {
+		validate();
+
+		return untyped __cpp__('glfwGetMouseButton(native, button) == GLFW_PRESS');
 	}
 
 	/**

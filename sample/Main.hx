@@ -48,8 +48,13 @@ class Main {
 
 		window.onPositionChange.push((x, y) -> trace('Moved to [$x, $y]'));
 
+		trace('Raw mouse motion support: ${window.rawMouseMotionSupported}');
+
 		while (!window.shouldClose) {
 			glfw.pollEvents();
+
+			window.title = 'GLFW with Haxe - Mouse at (${window.cursorPositionX}, ${window.cursorPositionY})';
+			Sys.sleep(1 / 30);
 		}
 
 		window.destroy();

@@ -12,8 +12,8 @@ This cover:
 
 * Monitor querying
 * Window creation
-* Gamepad input
-* [**Planned**] Mouse/keyboard input
+* Mouse and Gamepad input
+* [**Planned**] Keyboard input
 * [**Planned**] Windows/MacOS/Linux wayland support
 
 This does **not** cover OpenGL context creation/manipulation.
