@@ -72,7 +72,9 @@ class GLFW {
 		}
 	}
 
-	/** The version of the native GLFW library used. Can be called without having a `GLFW` instance. **/
+	/**
+		<p>The version of the native GLFW library used. Can be called without having a `GLFW` instance.</p><p><b>Thread safety:</b> This function may be called from any thread.</p>
+	**/
 	public static var version(get, never):{major:Int, minor:Int, patch:Int};
 
 	static function get_version():{major:Int, minor:Int, patch:Int} {
@@ -95,6 +97,8 @@ class GLFW {
 		This is the contents of the system clipboard, if it contains or is convertible to a UTF-8 encoded string.
 
 		If the clipboard is empty or if its contents cannot be converted, the result is an empty string.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
@@ -201,6 +205,8 @@ class GLFW {
 		Only one instance must be valid at a time.
 		Trying to create a second one will throw a `AlreadyInitializedException` exception.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws AlreadyInitializedException
 		@throws PlatformErrorException
 	**/
@@ -243,6 +249,8 @@ class GLFW {
 		The cursor can be destroyed `Cursor.destroy`, any remaining cursors are destroyed by `GLFW.destroy`.
 
 		The cursor hotspot is specified in pixels, relative to the upper-left corner of the cursor image. Like all other coordinate systems in GLFW, the X-axis points to the right and the Y-axis points down.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@param image The desired cursor image.
 		@param x The desired x-coordinate, in pixels, of the cursor hotspot.
@@ -303,6 +311,8 @@ class GLFW {
 
 		(2) This uses a newer standard that not all cursor themes support.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@param shape One of the standard shapes in `CursorShape`.
 
 		@return The created cursor.
@@ -353,6 +363,8 @@ class GLFW {
 
 		On wayland screensaver inhibition requires the idle-inhibit protocol to be implemented in the user's compositor.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@param options The options used to create the window.
 
 		@return The created window.
@@ -376,6 +388,10 @@ class GLFW {
 		This function should be called before the application exits.
 
 		Using the object, or objects created thought it, after the destruction will throw a `UseAfterDestroyException` exception.
+
+		**Reentrancy:** This function must not be called from a callback.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws UseAfterDestroyException
 		@throws PlatformErrorException
@@ -442,11 +458,14 @@ class GLFW {
 
 		Do not assume that callbacks you set will _only_ be called in response to event processing functions like this one. While it is necessary to poll for events, window systems that require GLFW to register callbacks of its own can pass events to GLFW in response to many window system function calls. GLFW will pass those events on to the application callbacks before returning.
 
+		**Reentrancy:** This function must not be called from a callback.
+
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
 	**/
 	public function pollEvents():Void {
-		// TODO add waitEvents() waitEventsTimeout() postEmptyEvent()
 		validate();
 
 		untyped __cpp__('glfwPollEvents();');
@@ -454,6 +473,22 @@ class GLFW {
 		for (gamepad in gamepads) {
 			gamepad.update();
 		}
+	}
+
+	/**
+		Posts an empty event to the event queue.
+
+		This is causing `GLFW.waitEvents` or `GLFW.waitEventsTimeout` to return.
+
+		**Thread safety:** This function may be called from any thread.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
+	**/
+	public function postEmptyEvent():Void {
+		validate();
+
+		untyped __cpp__('glfwPostEmptyEvent()');
 	}
 
 	/**
@@ -468,6 +503,8 @@ class GLFW {
 		If there is already a gamepad mapping for a given GUID in the internal list, it will be replaced by the one passed to this function.
 
 		If the library is terminated and re-initialized the internal list will revert to the built-in default.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@param patch The string containing the gamepad mappings patch.
 
@@ -512,5 +549,81 @@ class GLFW {
 
 		_monitors.remove(primary);
 		_monitors.unshift(primary);
+	}
+
+	/**
+		Waits until events are queued and processes them.
+
+		This function puts the calling thread to sleep until at least one event is available in the event queue.
+
+		Once one or more events are available, it behaves exactly like `GLFW.pollEvents`, i.e. the events in the queue are processed and the function then returns immediately.
+
+		Processing events will cause the window and input callbacks associated with those events to be called.
+
+		Since not all events are associated with callbacks, this function may return without a callback having been called even if you are monitoring all callbacks.
+
+		On some platforms, a window move, resize or menu operation will cause event processing to block.
+		This is due to how event processing is designed on those platforms.
+		You can use the `Window.onRefresh` callback to redraw the contents of your window when necessary during such operations.
+
+		Do not assume that callbacks you set will _only_ be called in response to event processing functions like this one.
+		While it is necessary to poll for events, window systems that require GLFW to register callbacks of its own can pass events to GLFW in response to many window system function calls.
+		GLFW will pass those events on to the application callbacks before returning.
+
+		**Reentrancy:** This function must not be called from a callback.
+
+		**Thead safety:** This function must only be called from the main thread.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
+	**/
+	public function waitEvents():Void {
+		validate();
+
+		untyped __cpp__('glfwWaitEvents()');
+
+		for (gamepad in gamepads) {
+			gamepad.update();
+		}
+	}
+
+	/**
+		Waits with timeout until events are queued and processes them.
+
+		This function puts the calling thread to sleep until at least one event is available in the event queue, or until the specified timeout is reached.
+
+		If one or more events are available, it behaves exactly like `GLFW.pollEvents`, i.e. the events in the queue are processed and the function then returns immediately.
+
+		Processing events will cause the window and input callbacks associated with those events to be called.
+
+		The timeout value must be a positive finite number.
+
+		Since not all events are associated with callbacks, this function may return without a callback having been called even if you are monitoring all callbacks.
+
+		On some platforms, a window move, resize or menu operation will cause event processing to block.
+		This is due to how event processing is designed on those platforms.
+		You can use the `Window.onRefresh` callback to redraw the contents of your window when necessary during such operations.
+
+		Do not assume that callbacks you set will _only_ be called in response to event processing functions like this one.
+		While it is necessary to poll for events, window systems that require GLFW to register callbacks of its own can pass events to GLFW in response to many window system function calls.
+		GLFW will pass those events on to the application callbacks before returning.
+
+		**Reentrancy:** This function must not be called from a callback.
+
+		**Thread safety:** This function must only be called from the main thread.
+
+		@param timeout The maximum amount of time, in seconds, to wait.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
+	**/
+	public function waitEventsTimeout(timeout:Float):Void {
+		validate();
+
+		untyped __cpp__('glfwWaitEventsTimeout(timeout >= 0 ? timeout : 0)');
+
+		for (gamepad in gamepads) {
+			gamepad.update();
+		}
 	}
 }

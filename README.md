@@ -13,6 +13,7 @@ This cover:
 * Monitor querying
 * Window creation
 * Keyboard, Mouse and Gamepad input
+* Support for Linux X11
 * [**Planned**] Windows/MacOS/Linux wayland support
 
 This does **not** cover OpenGL context creation/manipulation.

@@ -137,6 +137,8 @@ class KeyUsings {
 	/**
 		Onlys works for printable keys.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws NotInitializedException
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
@@ -148,6 +150,8 @@ class KeyUsings {
 	}
 
 	/**
+		**Thread safety:** This function may be called from any thread.
+
 		@throws NotInitializedException
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException

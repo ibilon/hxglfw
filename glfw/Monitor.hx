@@ -34,6 +34,8 @@ class Monitor {
 
 		The content scale may depend on both the monitor resolution and pixel density and on user settings. It may be very different from the raw DPI calculated from the physical size and current resolution.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws MonitorDisconnectedException
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
@@ -44,6 +46,8 @@ class Monitor {
 		The current mode of this monitor.
 
 		If you have created a fullscreen window for that monitor, the return value will depend on whether that window is iconified.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws MonitorDisconnectedException
 		@throws PlatformErrorException
@@ -56,6 +60,8 @@ class Monitor {
 
 		This is a human-readable name, encoded as UTF-8, of the specified monitor.
 		The name typically reflects the make and model of the  monitor and is not guaranteed to be unique among the connected monitors.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws MonitorDisconnectedException
 		@throws UseAfterDestroyException
@@ -81,6 +87,8 @@ class Monitor {
 
 		Some systems do not provide accurate monitor size information, either because the monitor [EDID](https://en.wikipedia.org/wiki/Extended_display_identification_data) data is incorrect or because the driver does not report it accurately.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws MonitorDisconnectedException
 		@throws UseAfterDestroyException
 	**/
@@ -90,6 +98,8 @@ class Monitor {
 		The position of the monitor's viewport on the virtual screen.
 
 		This is the position, in screen coordinates, of the upper-left corner of the monitor.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws MonitorDisconnectedException
 		@throws PlatformErrorException
@@ -103,6 +113,8 @@ class Monitor {
 		This is an array of all video modes supported by the monitor.
 		The returned array is sorted in ascending order, first by color bit depth (the sum of all channel depths) and then by resolution area (the product of width and height).
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws MonitorDisconnectedException
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
@@ -113,6 +125,8 @@ class Monitor {
 		The work area of the monitor.
 
 		This is the position, in screen coordinates, of the upper-left corner of the work area of the specified monitor along with the work area size in screen coordinates. The work area is defined as the area of the monitor not occluded by the operating system task bar where present. If no task bar exists then the work area is the monitor resolution in screen coordinates.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws MonitorDisconnectedException
 		@throws PlatformErrorException

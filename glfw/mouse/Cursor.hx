@@ -24,6 +24,10 @@ class Cursor {
 
 		Using the object after this will throw a `UseAfterDestroyException` exception.
 
+		**Reentrancy:** This function must not be called from a callback.
+
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
 	**/

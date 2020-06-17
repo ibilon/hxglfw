@@ -92,6 +92,8 @@ class Gamepad {
 	/**
 		Whether the gamepad is connected.
 
+		**Thread safety:** This variable must only be used from the main thread.
+
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
 	**/
@@ -104,6 +106,8 @@ class Gamepad {
 		This GUID tries to uniquely identify the make and model of a joystick but does not identify a specific unit, e.g. all wired Xbox 360 controllers will have the same GUID on that platform.
 
 		The GUID for a unit may vary between platforms depending on what hardware information the platform specific APIs provide.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws GamepadNotConnectedException
 		@throws PlatformErrorException
@@ -118,6 +122,8 @@ class Gamepad {
 
 		You can patch the mapping database with `GLFW.updateGamepadMappings` using the gamepad `Gamepad.guid`.
 
+		**Thread safety:** This function must only be called from the main thread.
+
 		@throws GamepadNotConnectedException
 		@throws UseAfterDestroyException
 	**/
@@ -128,6 +134,8 @@ class Gamepad {
 
 	/**
 		The name of the connected gamepad.
+
+		**Thread safety:** This function must only be called from the main thread.
 
 		@throws GamepadNotConnectedException
 		@throws PlatformErrorException
