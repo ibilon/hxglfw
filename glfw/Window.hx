@@ -1,7 +1,6 @@
 package glfw;
 
 import cpp.Float32;
-import cpp.NativeString;
 import cpp.UInt32;
 import cpp.Star;
 import glfw.keyboard.*;
@@ -244,15 +243,6 @@ class Window {
 	public var autoIconify(get, set):Bool;
 
 	/**
-		The contents of the clipboard as a string.
-
-		This is the contents of the system clipboard, if it contains or is convertible to a UTF-8 encoded string.
-
-		If the clipboard is empty or if its contents cannot be converted, the result is an empty string.
-	**/
-	public var clipboardString(get, set):String;
-
-	/**
 		The content scale of the window.
 
 		The content scale is the ratio between the current DPI and the platform's default DPI.
@@ -403,7 +393,8 @@ class Window {
 
 		To add a callback push a function to this array.
 	**/
-	public var onCharModifiers:Array<(codePoint:UInt, modifiers:Modifiers) -> Void>;
+	@:deprecated("Scheduled for removal in GLFW version 4.0")
+	public var onCharModifiers:Array<(codePoint:UInt, modifiers:Modifiers) -> Void> = [];
 
 	/**
 		The callbacks to be called when the window is closed.
@@ -651,20 +642,6 @@ class Window {
 		validate();
 
 		untyped __cpp__('glfwSetWindowAttrib(native, GLFW_AUTO_ICONIFY, value ? GLFW_TRUE : GLFW_FALSE)');
-
-		return value;
-	}
-
-	function get_clipboardString():String {
-		validate();
-
-		return NativeString.fromPointer(untyped __cpp__('glfwGetClipboardString(native)'));
-	}
-
-	function set_clipboardString(value:String):String {
-		validate();
-
-		untyped __cpp__('glfwSetClipboardString(native, value)');
 
 		return value;
 	}
@@ -943,7 +920,6 @@ class Window {
 	function new(parent:GLFW, options:WindowOptions) {
 		@:bypassAccessor this.cursor = null;
 		this.onChar = [];
-		this.onCharModifiers = [];
 		this.onClose = [];
 		this.onContentScaleChange = [];
 		this.onCursorHoverChange = [];

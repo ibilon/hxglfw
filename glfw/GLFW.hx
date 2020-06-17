@@ -1,5 +1,6 @@
 package glfw;
 
+import cpp.NativeString;
 import cpp.Pointer;
 import glfw.errors.*;
 import glfw.mouse.*;
@@ -64,6 +65,15 @@ class GLFW {
 	}
 
 	/**
+		The contents of the clipboard as a string.
+
+		This is the contents of the system clipboard, if it contains or is convertible to a UTF-8 encoded string.
+
+		If the clipboard is empty or if its contents cannot be converted, the result is an empty string.
+	**/
+	public var clipboardString(get, set):String;
+
+	/**
 		Array of possible gamepads.
 
 		This is a set of 15 preallocated `Gamepad` instances, the gamepads are not necessarily connected, check with `Gamepad.connected` or use `GLFW.getConnectedGamepads` to only get the gamepads that are connected.
@@ -121,6 +131,20 @@ class GLFW {
 		If no monitor is available then accessing this will throw a `NoMonitorException` exception.
 	**/
 	public var primaryMonitor(get, never):Monitor;
+
+	function get_clipboardString():String {
+		validate();
+
+		return NativeString.fromPointer(untyped __cpp__('glfwGetClipboardString(nullptr)'));
+	}
+
+	function set_clipboardString(value:String):String {
+		validate();
+
+		untyped __cpp__('glfwSetClipboardString(nullptr, value)');
+
+		return value;
+	}
 
 	inline function get_monitors():ReadOnlyArray<Monitor> {
 		validate();
