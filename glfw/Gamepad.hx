@@ -130,8 +130,6 @@ class Gamepad {
 	**/
 	public var onStatusChange:Array<(connected:Bool) -> Void>;
 
-	var parent:GLFW;
-
 	function get_buttonCross():Bool {
 		return buttonA;
 	}
@@ -149,7 +147,7 @@ class Gamepad {
 	}
 
 	function get_connected():Bool {
-		parent.validate(); // Don't throw if the gamepad is not connected here
+		GLFW.validate(); // Don't throw if the gamepad is not connected here
 
 		return untyped __cpp__('glfwJoystickPresent(id) == GLFW_TRUE');
 	}
@@ -169,15 +167,17 @@ class Gamepad {
 	function get_name():String {
 		validate();
 
-		// TODO GLFWAPI const char *glfwGetGamepadName(int jid);
-		return NativeString.fromPointer(untyped __cpp__('glfwGetJoystickName(id)'));
+		if (hasMapping) {
+			return NativeString.fromPointer(untyped __cpp__('glfwGetGamepadName(id)'));
+		} else {
+			return NativeString.fromPointer(untyped __cpp__('glfwGetJoystickName(id)'));
+		}
 	}
 
-	function new(parent:GLFW, id:Int) {
+	function new(id:Int) {
 		inline reset();
 		this.id = id;
 		this.onStatusChange = [];
-		this.parent = parent;
 	}
 
 	function reset():Void {
@@ -272,6 +272,6 @@ class Gamepad {
 			throw new GamepadNotConnectedException(this);
 		}
 
-		parent.validate();
+		GLFW.validate();
 	}
 }

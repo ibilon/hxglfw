@@ -45,7 +45,7 @@ class Main {
 		});
 
 		window.cursor = glfw.createStandardCursor(NotAllowed);
-
+		window.keySticky = true;
 		window.onPositionChange.push((x, y) -> trace('Moved to [$x, $y]'));
 
 		trace('Raw mouse motion support: ${window.rawMouseMotionSupported}');
@@ -55,6 +55,10 @@ class Main {
 
 			window.title = 'GLFW with Haxe - Mouse at (${window.cursorPositionX}, ${window.cursorPositionY})';
 			Sys.sleep(1 / 30);
+
+			if (window.getKeyState(Escape) == Press) {
+				window.shouldClose = true;
+			}
 		}
 
 		window.destroy();

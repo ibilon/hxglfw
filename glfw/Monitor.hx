@@ -63,8 +63,6 @@ class Monitor {
 	**/
 	public var onDisconnect:Array<() -> Void>;
 
-	var parent:GLFW;
-
 	/**
 		The physical size of the monitor.
 
@@ -201,8 +199,7 @@ class Monitor {
 		};
 	}
 
-	function new(parent:GLFW) {
-		this.parent = parent;
+	function new() {
 		this.onDisconnect = [];
 	}
 
@@ -211,6 +208,6 @@ class Monitor {
 			throw new MonitorDisconnectedException(this);
 		}
 
-		parent.validate();
+		GLFW.validate();
 	}
 }

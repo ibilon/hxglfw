@@ -15,11 +15,7 @@ import glfw.errors.*;
 ')
 @:headerInclude('./../glfw.h')
 class Cursor {
-	var parent:GLFW;
-
-	function new(parent:GLFW) {
-		this.parent = parent;
-	}
+	function new() {}
 
 	/**
 		Destroys the cursor.
@@ -42,6 +38,6 @@ class Cursor {
 			throw new UseAfterDestroyException();
 		}
 
-		parent.validate();
+		GLFW.validate();
 	}
 }

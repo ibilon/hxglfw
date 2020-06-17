@@ -4,6 +4,7 @@ import cpp.Float32;
 import cpp.NativeString;
 import cpp.UInt32;
 import cpp.Star;
+import glfw.keyboard.*;
 import glfw.mouse.*;
 import glfw.errors.*;
 
@@ -16,191 +17,214 @@ import glfw.errors.*;
 **/
 @:allow(glfw)
 @:cppNamespaceCode('
-	static void close_callback(GLFWwindow *window) {
+	static bool find_window(GLFWwindow *window, unsigned int *index) {
 		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
 			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
 
 			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onClose->length; ++j) {
-					elem->onClose->__get(j)();
-				}
+				*index = i;
+				return true;
+			}
+		}
 
-				return;
+		return false;
+	}
+
+	static void char_callback(GLFWwindow *window, unsigned int codepoint) {
+		unsigned int index;
+
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
+
+			for (unsigned int j = 0; j < elem->onChar->length; ++j) {
+				elem->onChar->__get(j)(codepoint);
+			}
+		}
+	}
+
+	static void char_mods_callback(GLFWwindow *window, unsigned int codepoint, int mods) {
+		unsigned int index;
+
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
+
+			for (unsigned int j = 0; j < elem->onCharModifiers->length; ++j) {
+				elem->onCharModifiers->__get(j)(codepoint, mods);
+			}
+		}
+	}
+
+	static void close_callback(GLFWwindow *window) {
+		unsigned int index;
+
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
+
+			for (unsigned int j = 0; j < elem->onClose->length; ++j) {
+				elem->onClose->__get(j)();
 			}
 		}
 	}
 
 	static void contentscale_callback(GLFWwindow *window, float x, float y) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onContentScaleChange->length; ++j) {
-					elem->onContentScaleChange->__get(j)(x, y);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onContentScaleChange->length; ++j) {
+				elem->onContentScaleChange->__get(j)(x, y);
 			}
 		}
 	}
 
 	static void cursor_enter_callback(GLFWwindow *window, int entered) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onCursorHoverChange->length; ++j) {
-					elem->onCursorHoverChange->__get(j)(entered == GLFW_TRUE);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onCursorHoverChange->length; ++j) {
+				elem->onCursorHoverChange->__get(j)(entered == GLFW_TRUE);
 			}
 		}
 	}
 
 	static void cursor_pos_callback(GLFWwindow *window, double x, double y) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onCursorPositionChange->length; ++j) {
-					elem->onCursorPositionChange->__get(j)(x, y);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onCursorPositionChange->length; ++j) {
+				elem->onCursorPositionChange->__get(j)(x, y);
 			}
 		}
 	}
 
 	static void drop_callback(GLFWwindow *window, int count, const char **paths) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onPathDrop->length; ++j) {
-					Array<String> haxe_paths = Array_obj<String>::__new();
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-					for (unsigned int k = 0; k < count; ++k) {
-						cpp::Pointer<char> ptr = paths[i];
-						haxe_paths->push(String(ptr->ptr));
-					}
+			for (unsigned int j = 0; j < elem->onPathDrop->length; ++j) {
+				Array<String> haxe_paths = Array_obj<String>::__new();
 
-					elem->onPathDrop->__get(j)(haxe_paths);
+				for (unsigned int k = 0; k < count; ++k) {
+					cpp::Pointer<char> ptr = paths[index];
+					haxe_paths->push(String(ptr->ptr));
 				}
 
-				return;
+				elem->onPathDrop->__get(j)(haxe_paths);
 			}
 		}
 	}
 
 	static void focus_callback(GLFWwindow *window, int focused) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onFocusChange->length; ++j) {
-					elem->onFocusChange->__get(j)(focused == GLFW_TRUE);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onFocusChange->length; ++j) {
+				elem->onFocusChange->__get(j)(focused == GLFW_TRUE);
 			}
 		}
 	}
 
 	static void iconify_callback(GLFWwindow *window, int iconified) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onIconifyChange->length; ++j) {
-					elem->onIconifyChange->__get(j)(iconified == GLFW_TRUE);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onIconifyChange->length; ++j) {
+				elem->onIconifyChange->__get(j)(iconified == GLFW_TRUE);
+			}
+		}
+	}
+
+	static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+		unsigned int index;
+
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
+
+			for (unsigned int j = 0; j < elem->onKey->length; ++j) {
+				elem->onKey->__get(j)(key, scancode, action, mods);
 			}
 		}
 	}
 
 	static void maximize_callback(GLFWwindow *window, int maximized) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onMaximizeChange->length; ++j) {
-					elem->onMaximizeChange->__get(j)(maximized == GLFW_TRUE);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onMaximizeChange->length; ++j) {
+				elem->onMaximizeChange->__get(j)(maximized == GLFW_TRUE);
 			}
 		}
 	}
 
 	static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onMouseButton->length; ++j) {
-					elem->onMouseButton->__get(j)(button, action == GLFW_PRESS);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onMouseButton->length; ++j) {
+				elem->onMouseButton->__get(j)(button, action == GLFW_PRESS, mods);
 			}
 		}
 	}
 
 	static void pos_callback(GLFWwindow *window, int x, int y) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onPositionChange->length; ++j) {
-					elem->onPositionChange->__get(j)(x, y);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onPositionChange->length; ++j) {
+				elem->onPositionChange->__get(j)(x, y);
 			}
 		}
 	}
 
 	static void refresh_callback(GLFWwindow *window) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onRefresh->length; ++j) {
-					elem->onRefresh->__get(j)();
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onRefresh->length; ++j) {
+				elem->onRefresh->__get(j)();
 			}
 		}
 	}
 
 	static void scroll_callback(GLFWwindow *window, double x, double y) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onMouseScroll->length; ++j) {
-					elem->onMouseScroll->__get(j)(x, y);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onMouseScroll->length; ++j) {
+				elem->onMouseScroll->__get(j)(x, y);
 			}
 		}
 	}
 
 	static void size_callback(GLFWwindow *window, int width, int height) {
-		for (unsigned int i = 0; i < glfw::Window_obj::windows->length; ++i) {
-			auto elem = glfw::Window_obj::windows->__get(i).StaticCast<glfw::Window>();
+		unsigned int index;
 
-			if (elem->native == window) {
-				for (unsigned int j = 0; j < elem->onSizeChange->length; ++j) {
-					elem->onSizeChange->__get(j)(width, height);
-				}
+		if (find_window(window, &index)) {
+			auto elem = glfw::Window_obj::windows->__get(index).StaticCast<glfw::Window>();
 
-				return;
+			for (unsigned int j = 0; j < elem->onSizeChange->length; ++j) {
+				elem->onSizeChange->__get(j)(width, height);
 			}
 		}
 	}
@@ -323,6 +347,20 @@ class Window {
 	};
 
 	/**
+		Whether sticky keys are enabled.
+
+		When sticky keys mode is enabled, the pollable state of a key will remain `KeyState.Press` until the state of that key is polled with `Window.getKeyState`. Once it has been polled, if a key release event had been processed in the meantime, the state will reset to `KeyState.Release`, otherwise it will remain `KeyState.Press`.
+	**/
+	public var keySticky(get, set):Bool;
+
+	/**
+		Whether caps lock and num lock key modifiers are set for key events.
+
+		When this input mode is enabled, any callback that receives `Modifiers` state will have the `Modifiers.capsLock` set to `true` set if Caps Lock was on when the event occurred and the `Modifiers.numLock` set to `true` if Num Lock was on.
+	**/
+	public var lockKeyModifiers(get, set):Bool;
+
+	/**
 		The current maximization state.
 
 		@see `Window.maximize`
@@ -337,6 +375,35 @@ class Window {
 		This is useful when you are only interested in whether mouse buttons have been pressed but not when or in which order.
 	**/
 	public var mouseButtonsSticky(get, set):Bool;
+
+	/**
+		The callbacks to be called when a Unicode character is input.
+
+		The character callback is intended for Unicode text input. As it deals with characters, it is keyboard layout dependent, whereas the key callback is not. Characters do not map 1:1 to physical keys, as a key may produce zero, one or more characters. If you want to know whether a specific physical key was pressed or released, see the `Window.onKey` callback instead.
+
+		The character callback behaves as system text input normally does and will not be called if modifier keys are held down that would prevent normal text input on that platform, for example a Super (Command) key on macOS or Alt key on Windows. For that use `Window.onCharModifiers`.
+
+		Arguments:
+
+		* `codePoint` The Unicode code point of the character.
+
+		To add a callback push a function to this array.
+	**/
+	public var onChar:Array<(codePoint:UInt) -> Void>;
+
+	/**
+		The callbacks to be called when a Unicode character is input regardless of what modifier keys are used.
+
+		The character with modifiers callback is intended for implementing custom Unicode character input. For regular Unicode text input, see the `Window.onChar` callback. Like the character callback, the character with modifiers callback deals with characters and is keyboard layout dependent. Characters do not map 1:1 to physical keys, as a key may produce zero, one or more characters. If you want to know whether a specific physical key was pressed or released, see the `Window.onKey` callback instead.
+
+		Arguments:
+
+		* `codePoint` The Unicode code point of the character.
+		* `modifiers` The modifier keys status.
+
+		To add a callback push a function to this array.
+	**/
+	public var onCharModifiers:Array<(codePoint:UInt, modifiers:Modifiers) -> Void>;
 
 	/**
 		The callbacks to be called when the window is closed.
@@ -413,6 +480,28 @@ class Window {
 	public var onIconifyChange:Array<(iconified:Bool) -> Void>;
 
 	/**
+		The callbacks to be called when a key is pressed, repeated or released.
+
+		This deals with physical keys, with layout independent `Key` tokens named after their values in the standard US keyboard layout.
+		If you want to input text, use the `Window.onChar` callback instead.
+
+		When a window loses input focus, it will generate synthetic key release events for all pressed keys.
+		You can tell these events from user-generated events by the fact that the synthetic ones are generated after the focus loss event has been processed, i.e. after the window focus callback has been called.
+
+		The scancode of a key is specific to that platform or sometimes even to that machine. Scancodes are intended to allow users to bind keys that don't have a GLFW key token. Such keys have key set to `Key.Unknown`, their state is not saved and so it cannot be queried with `Window.getKeyState`.
+
+		Sometimes GLFW needs to generate synthetic key events, in which case the scancode may be zero.
+
+		Arguments:
+
+		* `key` The keyboard key that was pressed or released.
+		* `scancode` The system-specific scancode of the key.
+		* `state` The state of the key.
+		* `modifiers` The modifier keys status.
+	**/
+	public var onKey:Array<(key:Key, scancode:Scancode, state:KeyState, modifiers:Modifiers) -> Void>;
+
+	/**
 		The callbacks to be called when the window is maximized or restored.
 
 		Arguments:
@@ -433,10 +522,11 @@ class Window {
 
 		* `button` The button that was pressed or released.
 		* `pressed` True if the button was pressed, false if released.
+		* `modifiers` The modifier keys status.
 
 		To add a callback push a function to this array.
 	**/
-	public var onMouseButton:Array<(button:MouseButton, pressed:Bool) -> Void>; // TODO modifier keys argument
+	public var onMouseButton:Array<(button:MouseButton, pressed:Bool, modifiers:Modifiers) -> Void>;
 
 	/**
 		The callbacks to be called when a scrolling device is used, such as a mouse wheel or scrolling area of a touchpad.
@@ -726,6 +816,32 @@ class Window {
 		};
 	}
 
+	function get_keySticky():Bool {
+		validate();
+
+		return untyped __cpp__('glfwGetInputMode(native, GLFW_STICKY_KEYS) == GLFW_TRUE');
+	}
+
+	function set_keySticky(value:Bool):Bool {
+		validate();
+
+		untyped __cpp__('glfwSetInputMode(native, GLFW_STICKY_KEYS, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
+	function get_lockKeyModifiers():Bool {
+		validate();
+
+		return untyped __cpp__('glfwGetInputMode(native, GLFW_STICKY_KEYS) == GLFW_TRUE');
+	}
+
+	function set_lockKeyModifiers(value:Bool):Bool {
+		validate();
+
+		untyped __cpp__('glfwSetInputMode(native, GLFW_STICKY_KEYS, value ? GLFW_TRUE : GLFW_FALSE)');
+		return value;
+	}
+
 	function get_maximized():Bool {
 		validate();
 
@@ -826,12 +942,15 @@ class Window {
 
 	function new(parent:GLFW, options:WindowOptions) {
 		@:bypassAccessor this.cursor = null;
+		this.onChar = [];
+		this.onCharModifiers = [];
 		this.onClose = [];
 		this.onContentScaleChange = [];
 		this.onCursorHoverChange = [];
 		this.onCursorPositionChange = [];
 		this.onFocusChange = [];
 		this.onIconifyChange = [];
+		this.onKey = [];
 		this.onMaximizeChange = [];
 		this.onMouseButton = [];
 		this.onMouseScroll = [];
@@ -892,9 +1011,12 @@ class Window {
 
 			native = glfwCreateWindow(options->width, options->height, options->title, nullptr, nullptr);
 
+			glfwSetCharCallback(native, char_callback);
+			glfwSetCharModsCallback(native, char_mods_callback);
 			glfwSetCursorEnterCallback(native, cursor_enter_callback);
 			glfwSetCursorPosCallback(native, cursor_pos_callback);
 			glfwSetDropCallback(native, drop_callback);
+			glfwSetKeyCallback(native, key_callback);
 			glfwSetMouseButtonCallback(native, mouse_button_callback);
 			glfwSetScrollCallback(native, scroll_callback);
 			glfwSetWindowCloseCallback(native, close_callback);
@@ -970,6 +1092,34 @@ class Window {
 		}
 
 		throw new NotFullscreenException(this);
+	}
+
+	/**
+		Get a key state.
+
+		This returns the last state reported for the specified key to the window.
+		The returned state is one of `KeyState.Press` or `KeyState.Release`.
+		The higher-level action `KeyState.Repeat` is only reported to the `Window.onKey` callback.
+
+		This function only returns cached key event state. It does not poll the system for the current physical state of the key.
+
+		Whenever you poll state, you risk missing the state change you are looking for. If a pressed key is released again before you poll its state, you will have missed the key press. The recommended solution for this is to use a `Window.onKey` callback, but there is also the `Window.keySticky` input mode.
+
+		If the `Window.keySticky` input mode is set to `true`, this function returns `KeyState.Press` the first time you call it for a key that was pressed, even if that key has already been released.
+
+		The key functions deal with physical keys, with key tokens named after their use on the standard US keyboard layout.
+		If you want to input text, use the Unicode `Window.onChar` callback instead.
+
+		**Do not** use this function to implement text input.
+
+		@param key The desired keyboard key. `Key.Unknown` is not a valid key for this function.
+
+		@return The state of the key.
+	**/
+	public function getKeyState(key:Key):KeyState {
+		validate();
+
+		return untyped __cpp__('glfwGetKey(native, key)');
 	}
 
 	/**
@@ -1350,6 +1500,6 @@ class Window {
 			throw new UseAfterDestroyException();
 		}
 
-		parent.validate();
+		GLFW.validate();
 	}
 }

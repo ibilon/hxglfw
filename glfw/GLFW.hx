@@ -40,6 +40,12 @@ class GLFW {
 		throw new Exception(message);
 	}
 
+	static function validate():Void {
+		if (untyped __cpp__('singleton == nullptr')) {
+			throw new UseAfterDestroyException();
+		}
+	}
+
 	/** The version of the native GLFW library used. Can be called without having a `GLFW` instance. **/
 	public static var version(get, never):{major:Int, minor:Int, patch:Int};
 
@@ -158,14 +164,14 @@ class GLFW {
 		this._monitors = [];
 		this.onGamepadChange = [];
 		this.onMonitorChange = [];
-		this.gamepads = [for (i in 0...16) new Gamepad(this, i)];
+		this.gamepads = [for (i in 0...16) new Gamepad(i)];
 
 		untyped __cpp__('
 			int count;
 			GLFWmonitor **raw_monitors = glfwGetMonitors(&count);
 
 			for (unsigned int i = 0; i < count; ++i) {
-				glfw::Monitor monitor = glfw::Monitor_obj::__alloc(HX_CTX, this);
+				glfw::Monitor monitor = glfw::Monitor_obj::__alloc(HX_CTX);
 				monitor->native = raw_monitors[i];
 				_monitors->push(monitor);
 			}
@@ -190,7 +196,7 @@ class GLFW {
 		@return The created cursor.
 	**/
 	public function createCursor(image:Image, x:Int, y:Int):Cursor {
-		var cursor = new Cursor(this);
+		var cursor = new Cursor();
 
 		untyped __cpp__('
 			unsigned char *pixels = (unsigned char*)malloc(sizeof(*pixels) * image->pixels->length);
@@ -242,7 +248,7 @@ class GLFW {
 		@return The created cursor.
 	**/
 	public function createStandardCursor(shape:CursorShape):Cursor {
-		var cursor = new Cursor(this);
+		var cursor = new Cursor();
 
 		untyped __cpp__('cursor->native = glfwCreateStandardCursor(shape)');
 
@@ -393,7 +399,7 @@ class GLFW {
 		var monitor = findMonitor(raw);
 
 		if (monitor == null) {
-			monitor = new Monitor(this);
+			monitor = new Monitor();
 			untyped __cpp__('monitor->native = (GLFWmonitor*)((void*)raw)');
 		}
 
@@ -419,11 +425,5 @@ class GLFW {
 
 		_monitors.remove(primary);
 		_monitors.unshift(primary);
-	}
-
-	function validate():Void {
-		if (untyped __cpp__('singleton != this')) {
-			throw new UseAfterDestroyException();
-		}
 	}
 }
