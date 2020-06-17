@@ -17,6 +17,7 @@ import haxe.ds.ReadOnlyArray;
 @:allow(glfw)
 @:build(glfw.GLFWBuilder.build())
 @:cppNamespaceCode('
+	static bool had_init = false;
 	static GLFW_obj *singleton = nullptr;
 
 	static void error_callback(int code, const char *message) {
@@ -37,13 +38,37 @@ class GLFW {
 		Called from `glfwSetErrorCallback`.
 	**/
 	static function errorCallback(code:Int, message:String):Void {
-		// TODO switch on code to dispatch better errors
-		throw new Exception(message);
+		switch (code) {
+			case 0x0001000B: // GLFW_CURSOR_UNAVAILABLE
+				throw new CursorUnavailableException(message);
+
+			case 0x00010009: // GLFW_FORMAT_UNAVAILABLE
+				throw new FormatUnavailableException(message);
+
+			case 0x00010003, 0x00010004: // GLFW_INVALID_ENUM & GLFW_INVALID_VALUE
+				throw new InternalException(message);
+
+			case 0x00010001: // GLFW_NOT_INITIALIZED
+				throw new NotInitializedException(message);
+
+			case 0x00010005: // GLFW_OUT_OF_MEMORY
+				throw new OutOfMemoryException(message);
+
+			case 0x00010008: // GLFW_PLATFORM_ERROR
+				throw new PlatformErrorException(message);
+
+			default: // Basic error type
+				throw new Exception(message);
+		}
 	}
 
 	static function validate():Void {
 		if (untyped __cpp__('singleton == nullptr')) {
-			throw new UseAfterDestroyException();
+			if (untyped __cpp__('had_init')) {
+				throw new UseAfterDestroyException();
+			} else {
+				throw new NotInitializedException("GLFW has not been initialized");
+			}
 		}
 	}
 
@@ -70,6 +95,9 @@ class GLFW {
 		This is the contents of the system clipboard, if it contains or is convertible to a UTF-8 encoded string.
 
 		If the clipboard is empty or if its contents cannot be converted, the result is an empty string.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var clipboardString(get, set):String;
 
@@ -90,6 +118,8 @@ class GLFW {
 		The primary monitor is always first in the array.
 
 		The `Monitor` instances are only valid until the instance is destroyed or the monitor gets disconnected.
+
+		@throws UseAfterDestroyException
 	**/
 	public var monitors(get, never):ReadOnlyArray<Monitor>;
 
@@ -129,6 +159,9 @@ class GLFW {
 		This is equalivalent to `monitors[0]`.
 
 		If no monitor is available then accessing this will throw a `NoMonitorException` exception.
+
+		@throws NoMonitorException
+		@throws UseAfterDestroyException
 	**/
 	public var primaryMonitor(get, never):Monitor;
 
@@ -167,6 +200,9 @@ class GLFW {
 
 		Only one instance must be valid at a time.
 		Trying to create a second one will throw a `AlreadyInitializedException` exception.
+
+		@throws AlreadyInitializedException
+		@throws PlatformErrorException
 	**/
 	public function new() {
 		if (untyped __cpp__('singleton != nullptr')) {
@@ -176,14 +212,9 @@ class GLFW {
 		untyped __cpp__('
 			glfwSetErrorCallback(error_callback);
 			glfwInitHint(GLFW_JOYSTICK_HAT_BUTTONS, GLFW_FALSE);
+			glfwInit();
+			singleton = this;
 		');
-
-		if (untyped __cpp__('glfwInit()') == 0) {
-			// TODO error callback might make this not needed
-			throw new InitializationException();
-		}
-
-		untyped __cpp__('singleton = this');
 
 		this._monitors = [];
 		this.onGamepadChange = [];
@@ -218,8 +249,13 @@ class GLFW {
 		@param y The desired y-coordinate, in pixels, of the cursor hotspot.
 
 		@return The created cursor.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function createCursor(image:Image, x:Int, y:Int):Cursor {
+		validate();
+
 		var cursor = new Cursor();
 
 		untyped __cpp__('
@@ -270,8 +306,14 @@ class GLFW {
 		@param shape One of the standard shapes in `CursorShape`.
 
 		@return The created cursor.
+
+		@throws CursorUnavailableException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function createStandardCursor(shape:CursorShape):Cursor {
+		validate();
+
 		var cursor = new Cursor();
 
 		untyped __cpp__('cursor->native = glfwCreateStandardCursor(shape)');
@@ -312,7 +354,12 @@ class GLFW {
 		On wayland screensaver inhibition requires the idle-inhibit protocol to be implemented in the user's compositor.
 
 		@param options The options used to create the window.
+
 		@return The created window.
+
+		@throws FormatUnavailableException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function createWindow(options:WindowOptions):Window {
 		validate();
@@ -329,6 +376,10 @@ class GLFW {
 		This function should be called before the application exits.
 
 		Using the object, or objects created thought it, after the destruction will throw a `UseAfterDestroyException` exception.
+
+		@throws UseAfterDestroyException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function destroy():Void {
 		validate();
@@ -356,8 +407,12 @@ class GLFW {
 		```haxe
 		return gamepads.filter(g -> g.connected);
 		```
+
+		@throws UseAfterDestroyException
 	**/
 	public function getConnectedGamepads():Array<Gamepad> {
+		validate();
+
 		return gamepads.filter(g -> g.connected);
 	}
 
@@ -386,8 +441,12 @@ class GLFW {
 		You can use the `Window.onRefresh` callback to redraw the contents of your window when necessary during such operations.
 
 		Do not assume that callbacks you set will _only_ be called in response to event processing functions like this one. While it is necessary to poll for events, window systems that require GLFW to register callbacks of its own can pass events to GLFW in response to many window system function calls. GLFW will pass those events on to the application callbacks before returning.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function pollEvents():Void {
+		// TODO add waitEvents() waitEventsTimeout() postEmptyEvent()
 		validate();
 
 		untyped __cpp__('glfwPollEvents();');
@@ -411,8 +470,12 @@ class GLFW {
 		If the library is terminated and re-initialized the internal list will revert to the built-in default.
 
 		@param patch The string containing the gamepad mappings patch.
+
+		@throws UseAfterDestroyException
 	**/
 	public function updateGamepadMappings(patch:String):Void {
+		validate();
+
 		untyped __cpp__('glfwUpdateGamepadMappings(patch)');
 	}
 

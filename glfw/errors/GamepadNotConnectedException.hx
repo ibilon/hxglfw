@@ -3,7 +3,7 @@ package glfw.errors;
 /**
 	The gamepad is not connected exception.
 
-	This is thrown when using a gamepad not connected.
+	Thrown when using a gamepad not connected.
 
 	You can check connection status with `Gamepad.connected`, or get all the connected gamepads with `GLFW.getConnectedGamepads`.
 **/

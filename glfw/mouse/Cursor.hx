@@ -23,6 +23,9 @@ class Cursor {
 		If the specified cursor is current for any window, that window will be reverted to the default cursor. This does not affect the cursor mode.
 
 		Using the object after this will throw a `UseAfterDestroyException` exception.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function destroy():Void {
 		validate();
@@ -33,6 +36,9 @@ class Cursor {
 		');
 	}
 
+	/**
+		@throws UseAfterDestroyException
+	**/
 	function validate():Void {
 		if (untyped __cpp__('native == nullptr')) {
 			throw new UseAfterDestroyException();

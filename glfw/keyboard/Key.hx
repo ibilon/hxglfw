@@ -4,7 +4,7 @@ package glfw.keyboard;
 	A key.
 
 	If a valid `GLFW` instance exists you can convert a key to its scancode value with `key.scancode()` and get its name with `key.name()`,
-	otherwise using these two functions will throw a `UseAfterDestroyException` exception.
+	otherwise using these two functions will throw a `NotInitializedException` or `UseAfterDestroyException` exception.
 **/
 @:using(glfw.keyboard.Key.KeyUsings)
 enum abstract Key(Int) {
@@ -136,6 +136,10 @@ enum abstract Key(Int) {
 class KeyUsings {
 	/**
 		Onlys works for printable keys.
+
+		@throws NotInitializedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public static function name(key:Key):String {
 		GLFW.validate();
@@ -143,6 +147,11 @@ class KeyUsings {
 		return untyped __cpp__('glfwGetKeyName(key, 0)');
 	}
 
+	/**
+		@throws NotInitializedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
+	**/
 	public static function scancode(key:Key):Scancode {
 		GLFW.validate();
 

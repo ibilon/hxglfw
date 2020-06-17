@@ -239,6 +239,9 @@ class Window {
 		Whether the fullscreen window will automatically iconify and restore the previous video mode on input focus loss.
 
 		This is ignored for windowed mode windows.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var autoIconify(get, set):Bool;
 
@@ -251,6 +254,9 @@ class Window {
 		This relies on the system DPI and scaling settings being somewhat correct.
 
 		On systems where each monitors can have its own content scale, the window content scale will depend on which monitor the system considers the window to be on.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var contentScale(get, never):{x:Float, y:Float};
 
@@ -264,6 +270,9 @@ class Window {
 		It will only be visible if the `Window.cursorMode` is `CursorMode.Normal`.
 
 		On some platforms, the set cursor may not be visible unless the window also has input focus.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var cursor(default, set):Null<Cursor>;
 
@@ -271,6 +280,9 @@ class Window {
 		The mode of the cursor, default to `CursorMode.Normal`.
 
 		See `CursorMode` for more details about the available modes.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var cursorMode(get, set):CursorMode;
 
@@ -281,6 +293,9 @@ class Window {
 
 		The coordinate can be converted to their integer equivalents with the `Math.floor` function.
 		Casting directly to an integer type works for positive coordinates, but fails for negative ones.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var cursorPositionX(get, set):Float;
 
@@ -291,6 +306,9 @@ class Window {
 
 		The coordinate can be converted to their integer equivalents with the `Math.floor` function.
 		Casting directly to an integer type works for positive coordinates, but fails for negative ones.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var cursorPositionY(get, set):Float;
 
@@ -298,6 +316,9 @@ class Window {
 		Whether the windowed mode window will have window decorations such as a border, a close widget, etc. An undecorated window will not be resizable by the user but will still allow the user to generate close events on some platforms.
 
 		This is ignored for fullscreen windows.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var decorated(get, set):Bool;
 
@@ -305,6 +326,9 @@ class Window {
 		Whether the windowed mode window will be floating above other regular windows, also called topmost or always-on-top. This is intended primarily for debugging purposes and cannot be used to implement proper fullscreen windows.
 
 		This is ignored for fullscreen windows.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var floating(get, set):Bool;
 
@@ -313,11 +337,17 @@ class Window {
 
 		@see `Window.focus`
 		@see `Window.requestAttention`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var focused(get, never):Bool;
 
 	/**
 		Whether the window will be given input focus when `Window.show` is called.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var focusOnShow(get, set):Bool;
 
@@ -328,6 +358,9 @@ class Window {
 		This size includes the title bar, if the window has one.
 
 		Because this function retrieves the size of each window frame edge and not the offset along a particular coordinate axis, the retrieved values will always be zero or positive.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var frameSize(get, never):{
 		left:Int,
@@ -340,6 +373,9 @@ class Window {
 		Whether sticky keys are enabled.
 
 		When sticky keys mode is enabled, the pollable state of a key will remain `KeyState.Press` until the state of that key is polled with `Window.getKeyState`. Once it has been polled, if a key release event had been processed in the meantime, the state will reset to `KeyState.Release`, otherwise it will remain `KeyState.Press`.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var keySticky(get, set):Bool;
 
@@ -347,6 +383,9 @@ class Window {
 		Whether caps lock and num lock key modifiers are set for key events.
 
 		When this input mode is enabled, any callback that receives `Modifiers` state will have the `Modifiers.capsLock` set to `true` set if Caps Lock was on when the event occurred and the `Modifiers.numLock` set to `true` if Num Lock was on.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var lockKeyModifiers(get, set):Bool;
 
@@ -355,6 +394,9 @@ class Window {
 
 		@see `Window.maximize`
 		@see `Window.restore`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var maximized(get, never):Bool;
 
@@ -363,6 +405,9 @@ class Window {
 
 		If true a mouse button press will ensure that `Window.getMouseButton` returns `true` the next time it is called even if the mouse button had been released before the call.
 		This is useful when you are only interested in whether mouse buttons have been pressed but not when or in which order.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var mouseButtonsSticky(get, set):Bool;
 
@@ -582,6 +627,9 @@ class Window {
 		If the system does not support whole window transparency, this is always one.
 
 		The initial opacity value for newly created windows is one.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var opacity(get, set):Float;
 
@@ -596,6 +644,9 @@ class Window {
 		Because of this, raw mouse motion is only provided when the cursor is disabled.
 
 		Setting this to `true` if `Window.rawMouseMotionSupported` is `false` will leave it to `false`.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var rawMouseMotion(get, set):Bool;
 
@@ -605,6 +656,8 @@ class Window {
 		This status does not change after GLFW has been initialized so you only need to check this once.
 
 		@see `Window.rawMouseMotion`
+
+		@throws UseAfterDestroyException
 	**/
 	public var rawMouseMotionSupported(get, never):Bool;
 
@@ -612,6 +665,9 @@ class Window {
 		Whether the windowed mode window will be resizable by the user. The window will still be resizable using the `Window.setSize` function.
 
 		This is ignored for fullscreen and undecorated windows.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var resizable(get, set):Bool;
 
@@ -619,16 +675,24 @@ class Window {
 		The close flag of the window.
 
 		Setting this can be used to override the user's attempt to close the window, or to signal that it should be closed.
+
+		@throws UseAfterDestroyException
 	**/
 	public var shouldClose(get, set):Bool;
 
 	/**
 		The title of the window.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var title(default, set):String;
 
 	/**
 		The current visibility state.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var visible(get, never):Bool;
 
@@ -1018,6 +1082,9 @@ class Window {
 		On calling this function, no further callbacks will be called for that window.
 
 		Using the object after this will throw a `UseAfterDestroyException` exception.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function destroy():Void {
 		validate();
@@ -1044,6 +1111,9 @@ class Window {
 		For a less disruptive way of getting the user's attention, see  `Window.requestAttention`.
 
 		On wayland it is not possible for an application to bring its windows to front, this function will always throw an exception.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function focus():Void {
 		validate();
@@ -1054,7 +1124,8 @@ class Window {
 	/**
 		Returns the monitor that the window uses for fullscreen mode.
 
-		@throws `NotFullscreenException` if the window is in windowed mode.
+		@throws NotFullscreenException if the window is in windowed mode.
+		@throws UseAfterDestroyException
 	**/
 	public function getFullscreenMonitor():Monitor {
 		validate();
@@ -1091,6 +1162,8 @@ class Window {
 		@param key The desired keyboard key. `Key.Unknown` is not a valid key for this function.
 
 		@return The state of the key.
+
+		@throws UseAfterDestroyException
 	**/
 	public function getKeyState(key:Key):KeyState {
 		validate();
@@ -1106,6 +1179,8 @@ class Window {
 		@param button The mouse button to get.
 
 		@return True if the `button` is pressed, false otherwise.
+
+		@throws UseAfterDestroyException
 	**/
 	public function getMouseButton(button:MouseButton):Bool {
 		validate();
@@ -1121,6 +1196,9 @@ class Window {
 		On wayland there is no way for an application to retrieve the global position of its windows, this function will always throw an exception.
 
 		@see `Window.setPosition`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function getPosition():{x:Int, y:Int} {
 		validate();
@@ -1140,6 +1218,9 @@ class Window {
 		Retrieves the size, in screen coordinates, of the content area of the window.
 
 		@see `Window.setSize`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function getSize():{width:Int, height:Int} {
 		validate();
@@ -1162,6 +1243,9 @@ class Window {
 		If the window is already hidden or is in fullscreen mode, this function does nothing.
 
 		@see `Window.show`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function hide():Void {
 		validate();
@@ -1181,6 +1265,9 @@ class Window {
 		This is a design decision of the xdg-shell protocol.
 
 		@see `Window.restore`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function iconify():Void {
 		validate();
@@ -1197,6 +1284,9 @@ class Window {
 		If the specified window is a fullscreen window, this function does nothing.
 
 		@see `Window.restore`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function maximize():Void {
 		validate();
@@ -1212,6 +1302,8 @@ class Window {
 		On MacOS `macNSWindow` will contain the `NSWindow` of the window, all other fields will be empty.
 
 		On Linux X11 `linuxX11Display` will contain `Display` used by GLFW and `linuxX11Window` the `Window` of the window, all other fields will be empty.
+
+		@throws UseAfterDestroyException
 	**/
 	public function nativeHandle():{
 		windowsHWND:Star<cpp.Void>,
@@ -1219,6 +1311,8 @@ class Window {
 		linuxX11Display:Star<cpp.Void>,
 		linuxX11Window:UInt32
 	} {
+		validate();
+
 		var windowsHWND:Star<cpp.Void> = cast 0;
 		var macNSWindow:Star<cpp.Void> = cast 0;
 		var linuxX11Display:Star<cpp.Void> = cast 0;
@@ -1255,6 +1349,9 @@ class Window {
 		Once the user has given attention, usually by focusing the window or application, the system will end the request automatically.
 
 		On MacOS attention is requested to the application as a whole, not the specific window.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function requestAttention():Void {
 		validate();
@@ -1272,6 +1369,9 @@ class Window {
 
 		@see `Window.iconify`
 		@see `Window.maximize`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function restore():Void {
 		validate();
@@ -1296,6 +1396,9 @@ class Window {
 
 		@param numerator The numerator of the desired aspect ratio.
 		@param denominator The denominator of the desired aspect ratio.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function setAspectRatio(numerator:Int, denominator:Int):Void {
 		validate();
@@ -1327,6 +1430,9 @@ class Window {
 		@param width The desired with, in screen coordinates, of the content area or video mode.
 		@param height The desired height, in screen coordinates, of the content area or video mode.
 		@param refreshRate Optional, the desired refresh rate, in Hz, of the video mode.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function setFullscreenMonitor(monitor:Null<Monitor>, x:Int, y:Int, width:Int, height:Int, ?refreshRate:Int):Void {
 		validate();
@@ -1352,6 +1458,9 @@ class Window {
 		On wayland there is no existing protocol to change an icon, the window will thus inherit the one defined in the application's desktop file. This function will always throw an exception.
 
 		@param icons The images to create the icon from, or an empty array to revert to the default window icon.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function setIcon(icons:Array<Image>):Void {
 		validate();
@@ -1401,6 +1510,9 @@ class Window {
 
 		@param x The x-coordinate of the upper-left corner of the content area.
 		@param y The y-coordinate of the upper-left corner of the content area.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function setPosition(x:Int, y:Int):Void {
 		validate();
@@ -1423,6 +1535,9 @@ class Window {
 		@param height The desired height, in screen coordinates, of the window content area.
 
 		@see `Window.getSize`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function setSize(width:Int, height:Int):Void {
 		validate();
@@ -1449,6 +1564,9 @@ class Window {
 		@param minHeight The minimum height, in screen coordinates, of the content area.
 		@param maxWidth The maximum width, in screen coordinates, of the content area.
 		@param maxHeight The maximum height, in screen coordinates, of the content area.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function setSizeLimits(minWidth:Int, minHeight:Int, maxWidth:Int, maxHeight:Int):Void {
 		validate();
@@ -1464,6 +1582,9 @@ class Window {
 		By default, windowed mode windows are focused when shown, set `WindowOptions.focusOnShow` or `Window.focusOnShow` to change this behavior.
 
 		@see `Window.hide`
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public function show():Void {
 		validate();
@@ -1471,6 +1592,9 @@ class Window {
 		untyped __cpp__('glfwShowWindow(native)');
 	}
 
+	/**
+		@throws UseAfterDestroyException
+	**/
 	function validate() {
 		if (untyped __cpp__('native == nullptr')) {
 			throw new UseAfterDestroyException();

@@ -33,6 +33,10 @@ class Monitor {
 		This relies on the system DPI and scaling settings being somewhat correct.
 
 		The content scale may depend on both the monitor resolution and pixel density and on user settings. It may be very different from the raw DPI calculated from the physical size and current resolution.
+
+		@throws MonitorDisconnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var contentScale(get, never):{x:Float, y:Float};
 
@@ -40,6 +44,10 @@ class Monitor {
 		The current mode of this monitor.
 
 		If you have created a fullscreen window for that monitor, the return value will depend on whether that window is iconified.
+
+		@throws MonitorDisconnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var currentVideoMode(get, never):VideoMode;
 
@@ -48,6 +56,9 @@ class Monitor {
 
 		This is a human-readable name, encoded as UTF-8, of the specified monitor.
 		The name typically reflects the make and model of the  monitor and is not guaranteed to be unique among the connected monitors.
+
+		@throws MonitorDisconnectedException
+		@throws UseAfterDestroyException
 	**/
 	public var name(get, never):String;
 
@@ -69,6 +80,9 @@ class Monitor {
 		This is the size, in millimetres, of the display area of the monitor.
 
 		Some systems do not provide accurate monitor size information, either because the monitor [EDID](https://en.wikipedia.org/wiki/Extended_display_identification_data) data is incorrect or because the driver does not report it accurately.
+
+		@throws MonitorDisconnectedException
+		@throws UseAfterDestroyException
 	**/
 	public var physicalSize(get, never):{width:Int, height:Int};
 
@@ -76,6 +90,10 @@ class Monitor {
 		The position of the monitor's viewport on the virtual screen.
 
 		This is the position, in screen coordinates, of the upper-left corner of the monitor.
+
+		@throws MonitorDisconnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var position(get, never):{x:Int, y:Int};
 
@@ -84,6 +102,10 @@ class Monitor {
 
 		This is an array of all video modes supported by the monitor.
 		The returned array is sorted in ascending order, first by color bit depth (the sum of all channel depths) and then by resolution area (the product of width and height).
+
+		@throws MonitorDisconnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var videoModes(get, never):ReadOnlyArray<VideoMode>;
 
@@ -91,6 +113,10 @@ class Monitor {
 		The work area of the monitor.
 
 		This is the position, in screen coordinates, of the upper-left corner of the work area of the specified monitor along with the work area size in screen coordinates. The work area is defined as the area of the monitor not occluded by the operating system task bar where present. If no task bar exists then the work area is the monitor resolution in screen coordinates.
+
+		@throws MonitorDisconnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var workarea(get, never):{
 		x:Int,
@@ -203,6 +229,10 @@ class Monitor {
 		this.onDisconnect = [];
 	}
 
+	/**
+		@throws MonitorDisconnectedException
+		@throws UseAfterDestroyException
+	**/
 	inline function validate() {
 		if (untyped __cpp__('native == nullptr')) {
 			throw new MonitorDisconnectedException(this);

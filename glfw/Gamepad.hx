@@ -89,7 +89,12 @@ class Gamepad {
 	/** Whether the dpad left button is pressed. */
 	public var buttonLeft(default, null):Bool;
 
-	/** Whether the gamepad is connected. **/
+	/**
+		Whether the gamepad is connected.
+
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
+	**/
 	public var connected(get, never):Bool;
 
 	/**
@@ -99,6 +104,10 @@ class Gamepad {
 		This GUID tries to uniquely identify the make and model of a joystick but does not identify a specific unit, e.g. all wired Xbox 360 controllers will have the same GUID on that platform.
 
 		The GUID for a unit may vary between platforms depending on what hardware information the platform specific APIs provide.
+
+		@throws GamepadNotConnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
 	**/
 	public var guid(get, never):String;
 
@@ -108,13 +117,22 @@ class Gamepad {
 		If the gamepad has no mapping the buttons and axes may be incorrectly mapped to the variables.
 
 		You can patch the mapping database with `GLFW.updateGamepadMappings` using the gamepad `Gamepad.guid`.
+
+		@throws GamepadNotConnectedException
+		@throws UseAfterDestroyException
 	**/
 	public var hasMapping(get, never):Bool;
 
 	/** The id of the gamepad, it is the index of the `GLFW.gamepads` array. **/
 	public var id(default, null):Int;
 
-	/** The name of the connected gamepad. **/
+	/**
+		The name of the connected gamepad.
+
+		@throws GamepadNotConnectedException
+		@throws PlatformErrorException
+		@throws UseAfterDestroyException
+	**/
 	public var name(get, never):String;
 
 	/**
@@ -204,6 +222,9 @@ class Gamepad {
 		buttonLeft = false;
 	}
 
+	/**
+		@throws PlatformErrorException
+	**/
 	function update():Void {
 		if (!connected) {
 			reset();
@@ -267,6 +288,10 @@ class Gamepad {
 
 	}
 
+	/**
+		@throws GamepadNotConnectedException
+		@throws UseAfterDestroyException
+	**/
 	function validate():Void {
 		if (untyped __cpp__('glfwJoystickPresent(id) == GLFW_FALSE')) {
 			throw new GamepadNotConnectedException(this);
