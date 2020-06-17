@@ -1,4 +1,4 @@
-package glfw;
+package glfw.mouse;
 
 /**
 	Cursor mode for `Window.cursorMode`.

@@ -1,4 +1,4 @@
-package glfw;
+package glfw.mouse;
 
 import glfw.errors.*;
 
@@ -13,7 +13,7 @@ import glfw.errors.*;
 @:headerClassCode('
 	GLFWcursor *native;
 ')
-@:headerInclude('./glfw.h')
+@:headerInclude('./../glfw.h')
 class Cursor {
 	var parent:GLFW;
 

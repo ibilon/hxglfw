@@ -3,7 +3,7 @@ package glfw;
 import cpp.UInt8;
 
 /**
-	Image data.
+	An image.
 
 	Used by `Window.setIcon`.
 

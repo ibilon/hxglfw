@@ -2,6 +2,7 @@ package glfw;
 
 import cpp.Pointer;
 import glfw.errors.*;
+import glfw.mouse.*;
 import haxe.ds.ReadOnlyArray;
 
 /**

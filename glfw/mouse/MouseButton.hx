@@ -1,4 +1,4 @@
-package glfw;
+package glfw.mouse;
 
 /**
 	A mouse button for `Window.getMouseButton` and `Window.onMouseButton`.

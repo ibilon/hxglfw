@@ -4,6 +4,7 @@ import cpp.Float32;
 import cpp.NativeString;
 import cpp.UInt32;
 import cpp.Star;
+import glfw.mouse.*;
 import glfw.errors.*;
 
 /**
