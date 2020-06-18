@@ -401,7 +401,7 @@ class Window {
 		@throws PlatformErrorException
 		@throws UseAfterDestroyException
 	**/
-	public var keySticky(get, set):Bool;
+	public var keysSticky(get, set):Bool;
 
 	/**
 		Whether caps lock and num lock key modifiers are set for key events.
@@ -901,13 +901,13 @@ class Window {
 		};
 	}
 
-	function get_keySticky():Bool {
+	function get_keysSticky():Bool {
 		validate();
 
 		return untyped __cpp__('glfwGetInputMode(native, GLFW_STICKY_KEYS) == GLFW_TRUE');
 	}
 
-	function set_keySticky(value:Bool):Bool {
+	function set_keysSticky(value:Bool):Bool {
 		validate();
 
 		untyped __cpp__('glfwSetInputMode(native, GLFW_STICKY_KEYS, value ? GLFW_TRUE : GLFW_FALSE)');
@@ -1047,6 +1047,12 @@ class Window {
 
 		windows.push(this);
 
+		final resetVisible = options.visible == null || options.visible;
+
+		if (options.openCentered != null && options.openCentered && options.monitor == null) {
+			options.visible = false;
+		}
+
 		untyped __cpp__('
 			glfwDefaultWindowHints();
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -1090,10 +1096,7 @@ class Window {
 				glfwWindowHint(GLFW_VISIBLE, options->visible ? GLFW_TRUE : GLFW_FALSE);
 			}
 
-			GLFWmonitor* monitor = hx::IsNull(options->monitor) ? nullptr : options->monitor->native;
-			GLFWwindow* share = hx::IsNull(options->share) ? nullptr : options->share->native;
-
-			native = glfwCreateWindow(options->width, options->height, options->title, nullptr, nullptr);
+			native = glfwCreateWindow(options->width, options->height, options->title, hx::IsNull(options->monitor) ? nullptr : options->monitor->native, nullptr);
 
 			glfwSetCharCallback(native, char_callback);
 			glfwSetCharModsCallback(native, char_mods_callback);
@@ -1113,11 +1116,40 @@ class Window {
 			glfwSetWindowSizeCallback(native, size_callback);
 		');
 
-		/*
-			if (options.openCentered != null && options.openCentered) {
-				// TODO Find which monitor the window was opened on, then center the window
+		if (options.openCentered != null && options.openCentered && options.monitor == null) {
+			final area = parent.primaryMonitor.workarea;
+			final size = getSize();
+
+			setPosition(Std.int((area.width - size.width) / 2), Std.int((area.height - size.height) / 2));
+
+			if (resetVisible) {
+				show();
 			}
-		 */
+		}
+
+		if (options.cursor != null) {
+			cursor = options.cursor;
+		}
+
+		if (options.cursorMode != null) {
+			cursorMode = options.cursorMode;
+		}
+
+		if (options.keysSticky != null) {
+			keysSticky = options.keysSticky;
+		}
+
+		if (options.lockKeyModifiers != null) {
+			lockKeyModifiers = options.lockKeyModifiers;
+		}
+
+		if (options.mouseButtonsSticky != null) {
+			mouseButtonsSticky = options.mouseButtonsSticky;
+		}
+
+		if (options.opacity != null) {
+			opacity = options.opacity;
+		}
 	}
 
 	/**
@@ -1202,9 +1234,9 @@ class Window {
 
 		This function only returns cached key event state. It does not poll the system for the current physical state of the key.
 
-		Whenever you poll state, you risk missing the state change you are looking for. If a pressed key is released again before you poll its state, you will have missed the key press. The recommended solution for this is to use a `Window.onKey` callback, but there is also the `Window.keySticky` input mode.
+		Whenever you poll state, you risk missing the state change you are looking for. If a pressed key is released again before you poll its state, you will have missed the key press. The recommended solution for this is to use a `Window.onKey` callback, but there is also the `Window.keysSticky` input mode.
 
-		If the `Window.keySticky` input mode is set to `true`, this function returns `KeyState.Press` the first time you call it for a key that was pressed, even if that key has already been released.
+		If the `Window.keysSticky` input mode is set to `true`, this function returns `KeyState.Press` the first time you call it for a key that was pressed, even if that key has already been released.
 
 		The key functions deal with physical keys, with key tokens named after their use on the standard US keyboard layout.
 		If you want to input text, use the Unicode `Window.onChar` callback instead.

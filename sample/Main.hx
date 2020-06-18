@@ -42,10 +42,11 @@ class Main {
 			title: "GLFW with Haxe",
 			width: 800,
 			height: 600,
+			cursor: glfw.createStandardCursor(NotAllowed),
+			keysSticky: true,
+			openCentered: true,
 		});
 
-		window.cursor = glfw.createStandardCursor(NotAllowed);
-		window.keySticky = true;
 		window.onPositionChange.push((x, y) -> trace('Moved to [$x, $y]'));
 
 		trace('Raw mouse motion support: ${window.rawMouseMotionSupported}');
