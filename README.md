@@ -1,10 +1,10 @@
-# (WIP) hxglfw
+# hxglfw
 
 ![Build Status](https://github.com/ibilon/hxglfw/workflows/Main/badge.svg)
 
 API Documentation: <https://ibilon.github.io/hxglfw/>
 
-hxglfw is a work in progress haxe/hxcpp wrapper around GLFW, this is not the C api.
+hxglfw is a haxe/hxcpp wrapper around GLFW. This is not the C api.
 
 The library is [null safe](https://haxe.org/manual/cr-null-safety.html) and compatible [cppia](https://haxe.org/manual/target-cppia.html), see `cppia_host.hxml` and `sample.hxml` on how to use cppia.
 
