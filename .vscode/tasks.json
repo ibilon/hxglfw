@@ -81,7 +81,7 @@
 				"--keep-field-order",
 				"-D",
 				"version",
-				"0.0.1",
+				"0.1.0",
 				"-D",
 				"source-path",
 				"https://github.com/ibilon/hxglfw/blob/master/",
@@ -90,7 +90,7 @@
 				"https://github.com/ibilon/hxglfw",
 				"-D",
 				"description",
-				"hxglfw is a work in progress haxe/hxcpp wrapper around GLFW"
+				"hxglfw is a haxe/hxcpp wrapper around GLFW"
 			],
 			"problemMatcher": [],
 			"dependsOn": "Pretask for Generate documentation"
